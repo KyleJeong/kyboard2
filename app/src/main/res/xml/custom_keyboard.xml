@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
-    android:horizontalGap="5dp"
-    android:verticalGap="5dp"
-    android:keyHeight="60dp"
+    android:horizontalGap="2dp"
+    android:verticalGap="2dp"
+    android:keyHeight="45dp"
     android:keyWidth="20%p">
 
 
@@ -31,7 +31,7 @@
         <Key android:keyLabel="p" android:keyEdgeFlags="right"/>
     </Row>
 
-    <Row  android:keyWidth="11%p">>
+    <Row  android:keyWidth="10%p">>
         <Key android:keyLabel="a" android:keyEdgeFlags="left"/>
         <Key android:keyLabel="s" />
         <Key android:keyLabel="d" />
@@ -40,11 +40,13 @@
         <Key android:keyLabel="h" />
         <Key android:keyLabel="j" />
         <Key android:keyLabel="k" />
-        <Key android:keyLabel="l" android:keyEdgeFlags="right"/>
+        <Key android:keyLabel="l" />
+        <Key android:keyLabel="⌫"  android:codes="67" android:keyEdgeFlags="right"/>
+
     </Row>
 
     <Row  android:keyWidth="10%p">>
-        <Key android:keyLabel="Shift" android:keyWidth="20%p" android:keyEdgeFlags="left"/>
+        <Key android:keyLabel="Shift" android:keyWidth="20%p" android:codes="-1" android:keyEdgeFlags="left"/>
         <Key android:keyLabel="z" />
         <Key android:keyLabel="x" />
         <Key android:keyLabel="c" />
@@ -52,12 +54,14 @@
         <Key android:keyLabel="b" />
         <Key android:keyLabel="n" />
         <Key android:keyLabel="m" />
-        <Key android:keyLabel="BS" android:keyEdgeFlags="right"/>
+        <Key android:keyLabel="."  android:keyEdgeFlags="right"/>
+
     </Row>
-    <Row  android:keyWidth="10%p">>
-        <Key android:keyLabel=" " android:keyWidth="70%p" android:keyEdgeFlags="left"/>
-        <Key android:keyLabel="." />
-        <Key android:keyLabel="Enter" android:keyWidth="20%p" android:keyEdgeFlags="right"/>
+    <Row  android:keyWidth="10%p">
+        <Key android:keyIcon="@drawable/language" android:keyWidth="10%p" android:codes="-1001"  android:keyEdgeFlags="left"/>
+        <Key android:keyLabel=" " android:keyWidth="70%p" android:codes="32" />
+        <Key android:keyLabel="Enter" android:keyWidth="20%p" android:codes="10" android:keyEdgeFlags="right"/>
+
     </Row>
 
 </Keyboard>
