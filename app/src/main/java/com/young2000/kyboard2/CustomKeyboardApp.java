@@ -160,160 +160,174 @@ public class CustomKeyboardApp extends InputMethodService
                         11‘ㄼ’, 12‘ㄽ’, 13‘ㄾ’, 14‘ㄿ’, 15‘ㅀ’, 16‘ㅁ’, 17‘ㅂ’, 18‘ㅄ’,19 ‘ㅅ’, 20‘ㅆ’, 21‘ㅇ’, 22‘ㅈ’, 23‘ㅊ’, 24‘ㅋ’, 25‘ㅌ’, 26‘ㅍ’, 27‘ㅎ’
                         예를 들어 한글의 첫 글자인 ‘가’ 는 0*21*28+0*28+0+0xAC00 이므로 BASE 코드 값이 됩니다. 그리고 초성의 시작점인 ‘ㄱ’은 0x1100이며 중성의 시작점인 ‘ㅏ’는 0x1161입니다.
                          */
-                        String choh = "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ";
-                        String jung = "ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ";
-                        String jong = "ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ";
+                        String jaum = "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ";
+                        // String jaum = 0ㄱ,1ㄲ,2ㄴ,3ㄷ,4ㄸ,5ㄹ,6ㅁ,7ㅂ,8ㅃ,9ㅅ,10ㅆ,11ㅇ,12ㅈ,13ㅉ,14ㅊ,15ㅋ,16ㅌ,17ㅍ,18ㅎ";
+                        String moum = "ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅛㅜㅠㅡㅣ";
+                        // String moum = 0ㅏ,1ㅐ,2ㅑ,3ㅒ,4ㅓ,5ㅔ,6ㅕ,7ㅖ,8ㅗ,9ㅛ,10ㅜ,11ㅠ,12ㅡ,13ㅣ";
+                        int jaumIndex = jaum.indexOf(label.toString());
+                        int moumIndex = moum.indexOf(label.toString());
+                        if ((jaumIndex == -1) && (moumIndex == -1)) {
+                            inputConnection.commitText(label, 1); // Input the label text
+                            Log.i("keystroke", "non Korea, so GOTO Initial");
+                            stage = STAGE_INITIAL;
+                        } else {
 
-                        int chohIndex = choh.indexOf(label.toString());
-                        int jungIndex = jung.indexOf(label.toString());
-                        int jongIndex = jong.indexOf(label.toString());
+                            String choh = "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ";
+                            String jung = "ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ";
+                            String jong = "ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ";
 
-                        Log.i("keystroke", "choh,jung,jong: " + chohIndex + " " + jungIndex + " " + jongIndex );
-                        Log.i("keystroke", "idx1,idx2,idx3: " + idx1 + " " + idx2 + " " + idx3 );
+                            int chohIndex = choh.indexOf(label.toString());
+                            int jungIndex = jung.indexOf(label.toString());
+                            int jongIndex = jong.indexOf(label.toString());
 
-                        Log.i("keystroke", "stage :" + stage);
+                            Log.i("keystroke", "input: " + ((jaumIndex!=-1)? jaum.charAt(jaumIndex) : moum.charAt(moumIndex)));
+                            Log.i("keystroke", "choh,jung,jong: " + chohIndex + " " + jungIndex + " " + jongIndex);
+                            Log.i("keystroke", "idx1,idx2,idx3: " + idx1 + " " + idx2 + " " + idx3);
 
-                        if (stage == STAGE_INITIAL) {
-                            if (chohIndex != -1) {
-                                inputConnection.commitText(label, 1); // Input the label text
-                                idx1 = chohIndex;
-                                stage = STAGE_CHOSUNG;
-                                delete_chosong = true;
+                            Log.i("keystroke", "stage :" + stage);
 
-                                Log.i("keystroke", "Goes to Chosung with " + choh.charAt(idx1) + " idx: " + idx1);
-                            }
-                        } else if (stage == STAGE_CHOSUNG) {
-                            if (jungIndex != -1) {
-                                if (delete_chosong) {
+                            if (stage == STAGE_INITIAL) {
+                                if (chohIndex != -1) {
+                                    inputConnection.commitText(label, 1); // Input the label text
+                                    idx1 = chohIndex;
+                                    stage = STAGE_CHOSUNG;
+                                    delete_chosong = true;
+
+                                    Log.i("keystroke", "Goes to Chosung with " + choh.charAt(idx1) + " idx: " + idx1);
+                                }
+                            } else if (stage == STAGE_CHOSUNG) {
+                                if (jungIndex != -1) {
+                                    if (delete_chosong) {
+                                        inputConnection.deleteSurroundingText(1, 0);
+                                    }
+
+                                    //inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
+                                    //inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL));
+                                    idx2 = jungIndex;
+                                    idx3 = 0;
+                                    Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + " and Jungsung with " + jung.charAt(idx2) + " idx: " + idx2);
+                                    int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
+                                    char[] charArray = Character.toChars(unicodeCodePoint);
+                                    String koreanCharacter = new String(charArray);
+                                    Log.i("keystroke", "Final: " + koreanCharacter);
+                                    stage = STAGE_JUNGSUNG;
+
+                                    Log.i("keystroke", "Goes to STAGE_JUNGSUNG");
+                                    inputConnection.commitText(koreanCharacter, 1);
+                                }
+                            } else if (stage == STAGE_JUNGSUNG) {
+                                if (jungIndex != -1) {
+                                    // 중성은 0ㅏ,1ㅐ,2ㅑ,3ㅒ,4ㅓ,5ㅔ,6ㅕ,7ㅖ,8ㅗ,9ㅘ,10ㅙ,11ㅚ,12ㅛ,13ㅜ,14ㅝ,15ㅞ,16ㅟ,17ㅠ,18ㅡ,19ㅢ,20ㅣ순입니다.
+                                    // ㅗ 인데,, ㅏ ㅐ ㅣ 가 오면 ok
+                                    if ((idx2 == 8) && ((jungIndex == 0) || (jungIndex == 1) || (jungIndex == 20))) {
+                                        //9, 10, 11 만들기
+                                        idx2 = (9 + jungIndex);
+                                        if (idx2 > 20) idx2 = 11;
+                                        idx3 = 0;
+                                        Log.i("keystroke", "Label matches with jung update at index: " + idx2);
+                                        Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with ");
+                                        int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
+                                        char[] charArray = Character.toChars(unicodeCodePoint);
+                                        String koreanCharacter = new String(charArray);
+                                        Log.i("keystroke", "Final: " + koreanCharacter);
+                                        inputConnection.commitText(koreanCharacter, 1);
+                                        Log.i("keystroke", "keep STAGE_JUNGSUNG");
+                                    }
+                                    // ㅜ 인데, ㅓ ㅔ ㅣ 가 오면 ok
+                                    else if ((idx2 == 13) && ((jungIndex == 4) || (jungIndex == 5) || (jungIndex == 20))) {
+                                        //14,15,16 만들기
+                                        idx2 = (10 + jungIndex);
+                                        if (idx2 > 20) idx2 = 16;
+                                        idx3 = 0;
+                                        Log.i("keystroke", "Label matches with jung update at index: " + idx2);
+                                        Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with ");
+                                        int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
+                                        char[] charArray = Character.toChars(unicodeCodePoint);
+                                        String koreanCharacter = new String(charArray);
+                                        Log.i("keystroke", "Final: " + koreanCharacter);
+                                        inputConnection.commitText(koreanCharacter, 1);
+                                        Log.i("keystroke", "keep STAGE_JUNGSUNG");
+                                    }
+                                    // - 인데,ㅣ 가 오면 ok
+                                    else if (idx2 == 18 && jungIndex == 20) {
+                                        idx2 = 19;
+                                        idx3 = 0;
+                                        Log.i("keystroke", "Label matches with jung update at index: " + idx2);
+                                        Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with ");
+                                        int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
+                                        char[] charArray = Character.toChars(unicodeCodePoint);
+                                        String koreanCharacter = new String(charArray);
+                                        Log.i("keystroke", "Final: " + koreanCharacter);
+                                        inputConnection.commitText(koreanCharacter, 1);
+                                        Log.i("keystroke", "keep STAGE_JUNGSUNG");
+                                    }
+                                    // 아니면 초성없는 중성모드로 이동
+                                    else {
+                                        Log.i("keystroke", "중성시작은 아직 미지원");
+                                    }
+                                } else if (jongIndex != -1) {
                                     inputConnection.deleteSurroundingText(1, 0);
-                                }
 
-                                //inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
-                                //inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL));
-                                idx2 = jungIndex;
-                                idx3 = 0;
-                                Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + " and Jungsung with " + jung.charAt(idx2) + " idx: " + idx2);
-                                int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
-                                char[] charArray = Character.toChars(unicodeCodePoint);
-                                String koreanCharacter = new String(charArray);
-                                Log.i("keystroke", "Final: " + koreanCharacter);
-                                stage = STAGE_JUNGSUNG;
-
-                                Log.i("keystroke", "Goes to STAGE_JUNGSUNG");
-                                inputConnection.commitText(koreanCharacter, 1);
-                            }
-                        } else if (stage == STAGE_JUNGSUNG) {
-                            if (jungIndex != -1) {
-                                // 중성은 0ㅏ,1ㅐ,2ㅑ,3ㅒ,4ㅓ,5ㅔ,6ㅕ,7ㅖ,8ㅗ,9ㅘ,10ㅙ,11ㅚ,12ㅛ,13ㅜ,14ㅝ,15ㅞ,16ㅟ,17ㅠ,18ㅡ,19ㅢ,20ㅣ순입니다.
-                                // ㅗ 인데,, ㅏ ㅐ ㅣ 가 오면 ok
-                                if ((idx2 == 8) && ((jungIndex == 0) || (jungIndex == 1) || (jungIndex == 20))) {
-                                    //9, 10, 11 만들기
-                                    idx2 = (9 + jungIndex);
-                                    if (idx2 > 20) idx2 = 11;
-                                    idx3 = 0;
-                                    Log.i("keystroke", "Label matches with jung update at index: " + idx2);
-                                    Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with ");
+                                    //inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
+                                    //inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL));
+                                    idx3 = jongIndex + 1;
+                                    Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with " + jong.charAt(idx3 - 1) + " idx: " + idx3);
                                     int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
                                     char[] charArray = Character.toChars(unicodeCodePoint);
                                     String koreanCharacter = new String(charArray);
                                     Log.i("keystroke", "Final: " + koreanCharacter);
                                     inputConnection.commitText(koreanCharacter, 1);
-                                    Log.i("keystroke", "keep STAGE_JUNGSUNG");
+                                    stage = STAGE_JONGSUNG_OR_NEW;
+                                    Log.i("keystroke", "Goes to STAGE_JONGSUNG_OR_NEW");
+
                                 }
-                                // ㅜ 인데, ㅓ ㅔ ㅣ 가 오면 ok
-                                else if ((idx2 == 13) && ((jungIndex == 4) || (jungIndex == 5) || (jungIndex == 20))) {
-                                    //14,15,16 만들기
-                                    idx2 = (10 + jungIndex);
-                                    if (idx2 > 20) idx2 = 16;
+                            } else if (stage == STAGE_JONGSUNG_OR_NEW) {
+                                // if 중성.
+                                if (jungIndex != -1) {
+                                    // 이전 글자 지우고
+                                    Log.i("keystroke", "Delete previous and make new");
+                                    inputConnection.deleteSurroundingText(1, 0);
+                                    // 종성 제외한 새 글자로 바꾼다음.
+                                    int temp = idx3;
                                     idx3 = 0;
-                                    Log.i("keystroke", "Label matches with jung update at index: " + idx2);
-                                    Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with ");
+                                    Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2);
                                     int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
                                     char[] charArray = Character.toChars(unicodeCodePoint);
                                     String koreanCharacter = new String(charArray);
                                     Log.i("keystroke", "Final: " + koreanCharacter);
                                     inputConnection.commitText(koreanCharacter, 1);
-                                    Log.i("keystroke", "keep STAGE_JUNGSUNG");
-                                }
-                                // - 인데,ㅣ 가 오면 ok
-                                else if (idx2 == 18 && jungIndex == 20) {
-                                    idx2 = 19;
+                                    // 새로운 초/중성 구성 글자 출력
+                                    idx1 = choh.indexOf(jong.charAt(temp - 1));
+                                    idx2 = jungIndex;
                                     idx3 = 0;
-                                    Log.i("keystroke", "Label matches with jung update at index: " + idx2);
-                                    Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with ");
-                                    int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
-                                    char[] charArray = Character.toChars(unicodeCodePoint);
-                                    String koreanCharacter = new String(charArray);
+                                    unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
+                                    charArray = Character.toChars(unicodeCodePoint);
+                                    koreanCharacter = new String(charArray);
                                     Log.i("keystroke", "Final: " + koreanCharacter);
                                     inputConnection.commitText(koreanCharacter, 1);
-                                    Log.i("keystroke", "keep STAGE_JUNGSUNG");
+                                    // 중성모드로 이동
+                                    stage = STAGE_JUNGSUNG;
+                                    Log.i("keystroke", "Goes to STAGE_JUNGSUNG with idx1,idx2:" + idx1 + ", " + idx2);
+                                } else {
+                                    // else 초성
+                                    Log.i("keystroke", "Last word has done.");
+                                    idx1 = chohIndex;
+                                    // 초성 모드로 넘어가거나
+                                    inputConnection.commitText(label, 1); // Input the label text
+                                    stage = STAGE_CHOSUNG;
+                                    delete_chosong = true;
+                                    Log.i("keystroke", "Goes to STAGE_CHOSUNG with idx1:" + idx1);
+
+                                    // 이중종성처리. 일단 이중종성 없이 초성으로 넘어간다고 치자
+                                    // ㄱ --> ㄳ
+                                    // ㄴ --> ㄵ ㄶ
+                                    // ㄹ --> ㄺ ㄻ ㄼ ㄽ ㄾ ㄿ ㅀ
+                                    // ㅂ --> ㅄ
+
+                                    //0없음, 1‘ㄱ’, 2‘ㄲ’, 3‘ㄳ’, 4‘ㄴ’, 5‘ㄵ’, 6‘ㄶ’, 7‘ㄷ’, 8‘ㄹ’, 9‘ㄺ’, 10‘ㄻ’,
+                                    //11‘ㄼ’, 12‘ㄽ’, 13‘ㄾ’, 14‘ㄿ’, 15‘ㅀ’, 16‘ㅁ’, 17‘ㅂ’, 18‘ㅄ’,19 ‘ㅅ’, 20‘ㅆ’, 21‘ㅇ’, 22‘ㅈ’, 23‘ㅊ’, 24‘ㅋ’, 25‘ㅌ’, 26‘ㅍ’, 27‘ㅎ’
+                                    Log.i("keystroke", "이중 종성은 미지원");
                                 }
-                                // 아니면 초성없는 중성모드로 이동
-                                else {
-                                    Log.i("keystroke", "중성시작은 아직 미지원");
-                                }
-                            } else if (jongIndex != -1) {
-                                inputConnection.deleteSurroundingText(1, 0);
-
-                                //inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
-                                //inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL));
-                                idx3 = jongIndex + 1;
-                                Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with " + jong.charAt(idx3 - 1) + " idx: " + idx3);
-                                int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
-                                char[] charArray = Character.toChars(unicodeCodePoint);
-                                String koreanCharacter = new String(charArray);
-                                Log.i("keystroke", "Final: " + koreanCharacter);
-                                inputConnection.commitText(koreanCharacter, 1);
-                                stage = STAGE_JONGSUNG_OR_NEW;
-                                Log.i("keystroke", "Goes to STAGE_JONGSUNG_OR_NEW");
-
-                            }
-                        } else if (stage == STAGE_JONGSUNG_OR_NEW) {
-                            // if 중성.
-                            if (jungIndex != -1) {
-                                // 이전 글자 지우고
-                                Log.i("keystroke", "Delete previous and make new");
-                                inputConnection.deleteSurroundingText(1, 0);
-                                // 종성 제외한 새 글자로 바꾼다음.
-                                int temp = idx3;
-                                idx3 = 0;
-                                Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2);
-                                int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
-                                char[] charArray = Character.toChars(unicodeCodePoint);
-                                String koreanCharacter = new String(charArray);
-                                Log.i("keystroke", "Final: " + koreanCharacter);
-                                inputConnection.commitText(koreanCharacter, 1);
-                                // 새로운 초/중성 구성 글자 출력
-                                idx1 = choh.indexOf(jong.charAt(temp - 1));
-                                idx2 = jungIndex;
-                                idx3 = 0;
-                                unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
-                                charArray = Character.toChars(unicodeCodePoint);
-                                koreanCharacter = new String(charArray);
-                                Log.i("keystroke", "Final: " + koreanCharacter);
-                                inputConnection.commitText(koreanCharacter, 1);
-                                // 중성모드로 이동
-                                stage = STAGE_JUNGSUNG;
-                                Log.i("keystroke", "Goes to STAGE_JUNGSUNG with idx1,idx2:" + idx1 + ", " + idx2);
-                            } else {
-                                // else 초성
-                                Log.i("keystroke", "Last word has done.");
-                                idx1 = chohIndex;
-                                // 초성 모드로 넘어가거나
-                                inputConnection.commitText(label, 1); // Input the label text
-                                stage = STAGE_CHOSUNG;
-                                delete_chosong = true;
-                                Log.i("keystroke", "Goes to STAGE_CHOSUNG with idx1:" + idx1);
-
-                                // 이중종성처리. 일단 이중종성 없이 초성으로 넘어간다고 치자
-                                // ㄱ --> ㄳ
-                                // ㄴ --> ㄵ ㄶ
-                                // ㄹ --> ㄺ ㄻ ㄼ ㄽ ㄾ ㄿ ㅀ
-                                // ㅂ --> ㅄ
-
-                                //0없음, 1‘ㄱ’, 2‘ㄲ’, 3‘ㄳ’, 4‘ㄴ’, 5‘ㄵ’, 6‘ㄶ’, 7‘ㄷ’, 8‘ㄹ’, 9‘ㄺ’, 10‘ㄻ’,
-                                //11‘ㄼ’, 12‘ㄽ’, 13‘ㄾ’, 14‘ㄿ’, 15‘ㅀ’, 16‘ㅁ’, 17‘ㅂ’, 18‘ㅄ’,19 ‘ㅅ’, 20‘ㅆ’, 21‘ㅇ’, 22‘ㅈ’, 23‘ㅊ’, 24‘ㅋ’, 25‘ㅌ’, 26‘ㅍ’, 27‘ㅎ’
-                                Log.i("keystroke", "이중 종성은 미지원");
                             }
                         }
                     }
