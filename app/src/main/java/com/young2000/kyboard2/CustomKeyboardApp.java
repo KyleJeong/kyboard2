@@ -100,6 +100,9 @@ public class CustomKeyboardApp extends InputMethodService
             inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
             // If the Enter key is stroked, clean the isShift variable to return to normal.
             isShifted = false;
+            if (English_Korean==1) {
+                stage = STAGE_INITIAL;
+            }
         } else if (primaryCode == 32) {
             // Space key pressed
             Log.i("keystroke", "Space key pressed");
@@ -116,6 +119,9 @@ public class CustomKeyboardApp extends InputMethodService
             Log.i("keystroke", "Backspace key pressed");
             inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
             inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL));
+            if (English_Korean==1) {
+                stage = STAGE_INITIAL;
+            }
         } else if (primaryCode == 10) {
             // Backspace key pressed
             Log.i("keystroke", "Enter key pressed");
@@ -123,12 +129,17 @@ public class CustomKeyboardApp extends InputMethodService
             inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
             // If the Enter key is stroked, clean the isShift variable to return to normal.
             isShifted = false;
+            if (English_Korean==1) {
+                stage = STAGE_INITIAL;
+            }
         } else if (primaryCode == -1001) {
             Log.i("keystroke", "Language key pressed");
             English_Korean = (English_Korean+1)%2;
             languageUpdate = true;
             isShifted = false;  // reset Shift when the language is updated
-            stage=STAGE_INITIAL;
+            if (English_Korean==1) {
+                stage = STAGE_INITIAL;
+            }
         } else {
             for (Keyboard.Key key : keys) {
                 if (key.codes[0] == primaryCode) {
