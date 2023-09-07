@@ -331,6 +331,8 @@ public class CustomKeyboardApp extends InputMethodService
                                     Log.i("keystroke", "Goes to STAGE_JONGSUNG_OR_NEW");
                                 }
                                 // 초/중성 상태인데,다시 모음이면, 이중모음이거나, 새로운 중성 only 상태여야 한다.
+                                // 이중모음이면 이전글자를 지우고.. 새롭게 쓰고 STAGE_JUNGSUNG 유지
+                                // 그게 아니면 STAGE_JUNGSUNG_ONLY 상태로 바뀐다.
                                 else {
                                     jungIndex = jung.indexOf(label.toString());
                                     // 중성은 0ㅏ,1ㅐ,2ㅑ,3ㅒ,4ㅓ,5ㅔ,6ㅕ,7ㅖ,8ㅗ,9ㅘ,10ㅙ,11ㅚ,12ㅛ,13ㅜ,14ㅝ,15ㅞ,16ㅟ,17ㅠ,18ㅡ,19ㅢ,20ㅣ순입니다.
@@ -340,6 +342,7 @@ public class CustomKeyboardApp extends InputMethodService
                                         idx2 = (9 + jungIndex);
                                         if (idx2 > 20) idx2 = 11;
                                         idx3 = 0;
+                                        inputConnection.deleteSurroundingText(1, 0);
                                         Log.i("keystroke", "Label matches with jung update at index: " + idx2);
                                         Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with ");
                                         int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
@@ -355,6 +358,7 @@ public class CustomKeyboardApp extends InputMethodService
                                         idx2 = (10 + jungIndex);
                                         if (idx2 > 20) idx2 = 16;
                                         idx3 = 0;
+                                        inputConnection.deleteSurroundingText(1, 0);
                                         Log.i("keystroke", "Label matches with jung update at index: " + idx2);
                                         Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with ");
                                         int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
@@ -368,6 +372,7 @@ public class CustomKeyboardApp extends InputMethodService
                                     else if (idx2 == 18 && jungIndex == 20) {
                                         idx2 = 19;
                                         idx3 = 0;
+                                        inputConnection.deleteSurroundingText(1, 0);
                                         Log.i("keystroke", "Label matches with jung update at index: " + idx2);
                                         Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with ");
                                         int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
