@@ -28,8 +28,10 @@ public class CustomKeyboardApp extends InputMethodService
     int prev_cho_jung_DanjaumJongsung;
     KeyboardView keyboardView;
     boolean isShifted;
+    boolean markEnabled;
     int English_Korean;
     List<KeyMapping> mappingList;
+    List<KeyMapping> markMappingList;
     @Override
     public View onCreateInputView() {
 
@@ -39,17 +41,21 @@ public class CustomKeyboardApp extends InputMethodService
         keyboardView.setOnKeyboardActionListener(this);
 
         mappingList = new ArrayList<>();
+        markMappingList = new ArrayList<>();
 
         char[] keys =   {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
         char[] values = {'ㅁ', 'ㅠ', 'ㅊ', 'ㅇ', 'ㄷ', 'ㄹ', 'ㅎ', 'ㅗ', 'ㅑ', 'ㅓ', 'ㅏ', 'ㅣ', 'ㅡ', 'ㅜ', 'ㅐ', 'ㅔ', 'ㅂ', 'ㄱ', 'ㄴ', 'ㅅ', 'ㅕ', 'ㅍ', 'ㅈ', 'ㅌ', 'ㅛ', 'ㅋ'};
+        char[] markValues = {'.', '<', 'c', '\'', 'e', '\"', '-', '_', 'i', '+', '*', '/', '?', '>', 'o', 'p', 'q', 'r', ',', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
 
         for (int i = 0; i < keys.length; i++) {
             mappingList.add(new KeyMapping(keys[i], values[i]));
+            markMappingList.add(new KeyMapping(keys[i], markValues[i]));
         }
 
         isShifted = false;
         English_Korean = 0;
         stage = STAGE_INITIAL;
+        markEnabled = false;
         return keyboardView;
     }
 
@@ -100,6 +106,7 @@ public class CustomKeyboardApp extends InputMethodService
             // Shift key pressed
             Log.i("keystroke", "Shift key pressed");
             isShifted = !isShifted; // Toggle shift state
+            languageUpdate = true;
         } else if (primaryCode == 67) {
             // Backspace key pressed
             Log.i("keystroke", "Backspace key pressed");
@@ -110,10 +117,19 @@ public class CustomKeyboardApp extends InputMethodService
             }
         } else if (primaryCode == -1001) {
             Log.i("keystroke", "Language key pressed");
-            English_Korean = (English_Korean+1)%2;
+            English_Korean = (English_Korean + 1) % 2;
             languageUpdate = true;
+            markEnabled = false;
             isShifted = false;  // reset Shift when the language is updated
-            if (English_Korean==1) {
+            if (English_Korean == 1) {
+                stage = STAGE_INITIAL;
+            }
+        } else if (primaryCode == -1010){
+            Log.i("keystroke", "mark key pressed");
+            languageUpdate = true;
+            markEnabled = !markEnabled;
+            isShifted = false;  // reset Shift when the language is updated
+            if (English_Korean == 1) {
                 stage = STAGE_INITIAL;
             }
         } else {
@@ -580,85 +596,58 @@ public class CustomKeyboardApp extends InputMethodService
 
         // Korean/English first
         if (languageUpdate) {
+            Log.i("keystroke", "language Update");
             for (Keyboard.Key key : keys) {
                 CharSequence label = key.label;
                 int pmCode = key.codes[0];
-                if (label != null && pmCode != 10 && pmCode != 32 && pmCode != -1 && pmCode != 67 && pmCode != 1001 && !label.equals(".")) {
-                    for (KeyMapping mapping : mappingList) {
-                        if (English_Korean == 0) {
-                            if (mapping.koreanCharacter == label.toString().toLowerCase().charAt(0)) {
-                                key.label = String.valueOf(mapping.englishKey);
+                if (label != null && pmCode != 10 && pmCode != 32 && pmCode != -1 && pmCode != 67 && pmCode != 1001 && pmCode != 1010 ) {
+                    // key의 pmCode        로 MappingList의 위치를 찾아서
+                    Log.i("keystroke", "key is : " + (char)pmCode + " code: " + pmCode);
+                    if (markEnabled) {
+                        for (KeyMapping mapping : markMappingList) {
+                            if (mapping.englishKey == (char)pmCode) {
+                                key.label = String.valueOf(mapping.anotherCharacter);
+                                Log.i("keystroke", "found : " + key.label );
                                 break; // Stop the loop once you find the mapping
                             }
-                        } else {
-                            if (mapping.englishKey == label.toString().toLowerCase().charAt(0)) {
-                                key.label = String.valueOf(mapping.koreanCharacter);
-                                break; // Stop the loop once you find the mapping
-                            }
-                        }
-                    }
-                }
-            }
-            languageUpdate = false;
-        }
-
-        if (English_Korean == 0) {
-            for (Keyboard.Key key : keys) {
-                CharSequence label = key.label;
-                int pmCode = key.codes[0];
-                if (label != null && pmCode != 10 && pmCode != 32 && pmCode != -1 && pmCode != 67 && pmCode != 1001 && !label.equals(".")) {
-                    if (isShifted && Character.isLowerCase(label.charAt(0))) {
-                        label = label.toString().toUpperCase();
-                        key.label = label;
-                    }
-                    if (!isShifted && Character.isUpperCase(label.charAt(0))) {
-                        label = label.toString().toLowerCase();
-                        key.label = label;
-                    }
-                }
-            }
-        } else {
-            for (Keyboard.Key key : keys) {
-                CharSequence label = key.label;
-                int pmCode = key.codes[0];
-                // Handle default case here
-                if (label != null && pmCode != 10 && pmCode != 32 && pmCode != -1 && pmCode != 67 && pmCode != 1001 && !label.equals(".")) {
-
-                    if (!isShifted) {
-                        if (label.toString().equals("ㅃ")) {
-                            key.label = "ㅂ";
-                        } else if (label.toString().equals("ㅉ")) {
-                            key.label = "ㅈ";
-                        } else if (label.toString().equals("ㄸ")) {
-                            key.label = "ㄷ";
-                        } else if (label.toString().equals("ㄲ")) {
-                            key.label = "ㄱ";
-                        } else if (label.toString().equals("ㅆ")) {
-                            key.label = "ㅅ";
-                        } else if (label.toString().equals("ㅒ")) {
-                            key.label = "ㅐ";
-                        } else if (label.toString().equals("ㅖ")) {
-                            key.label = "ㅔ";
                         }
                     } else {
-                        if (label.toString().equals("ㅂ")) {
-                            key.label = "ㅃ";
-                        } else if (label.toString().equals("ㅈ")) {
-                            key.label = "ㅉ";
-                        } else if (label.toString().equals("ㄷ")) {
-                            key.label = "ㄸ";
-                        } else if (label.toString().equals("ㄱ")) {
-                            key.label = "ㄲ";
-                        } else if (label.toString().equals("ㅅ")) {
-                            key.label = "ㅆ";
-                        } else if (label.toString().equals("ㅐ")) {
-                            key.label = "ㅒ";
-                        } else if (label.toString().equals("ㅔ")) {
-                            key.label = "ㅖ";
+                        for (KeyMapping mapping : mappingList) {
+                            if (mapping.englishKey == (char)pmCode) {
+                                if (English_Korean == 0) {
+                                    if (!isShifted) {
+                                        key.label = String.valueOf(mapping.englishKey).toUpperCase();
+                                    } else {
+                                        key.label = String.valueOf(mapping.englishKey);
+                                    }
+                                } else {
+                                    key.label = String.valueOf(mapping.anotherCharacter);
+                                    if (isShifted) {
+                                        if (key.label.toString().equals("ㅂ")) {
+                                            key.label = "ㅃ";
+                                        } else if (key.label.toString().equals("ㅈ")) {
+                                            key.label = "ㅉ";
+                                        } else if (key.label.toString().equals("ㄷ")) {
+                                            key.label = "ㄸ";
+                                        } else if (key.label.toString().equals("ㄱ")) {
+                                            key.label = "ㄲ";
+                                        } else if (key.label.toString().equals("ㅅ")) {
+                                            key.label = "ㅆ";
+                                        } else if (key.label.toString().equals("ㅐ")) {
+                                            key.label = "ㅒ";
+                                        } else if (key.label.toString().equals("ㅔ")) {
+                                            key.label = "ㅖ";
+                                        }
+                                    }
+                                }
+                                break; // Stop the loop once you find the mapping
+                            }
                         }
                     }
                 }
             }
+
+            languageUpdate = false;
         }
 
         keyboardView.invalidateAllKeys(); // Refresh key labels after shift state changes
@@ -693,11 +682,11 @@ public class CustomKeyboardApp extends InputMethodService
 
     static class KeyMapping {
         public char englishKey;
-        public char koreanCharacter;
+        public char anotherCharacter;
 
-        public KeyMapping(char englishKey, char koreanCharacter) {
+        public KeyMapping(char englishKey, char anotherCharacter) {
             this.englishKey = englishKey;
-            this.koreanCharacter = koreanCharacter;
+            this.anotherCharacter = anotherCharacter;
         }
     }
 
