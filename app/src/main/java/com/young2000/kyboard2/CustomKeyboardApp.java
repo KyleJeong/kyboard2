@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputConnection;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,10 +18,14 @@ public class CustomKeyboardApp extends InputMethodService
     public static final int STAGE_CHOSUNG = 1;
     public static final int STAGE_JUNGSUNG = 2;
     public static final int STAGE_JONGSUNG_OR_NEW = 4;
+    public static final int STAGE_INITIAL_OR_CHOSUNG = 6;
     public static final int STAGE_JUNGSUNG_ONLY = 5;
-    boolean delete_chosong;
     int stage;
     int idx1, idx2, idx3;
+    int last_jaumIndex;
+    int last_moumIndex;
+    boolean last_was_jaum;
+    int prev_cho_jung_DanjaumJongsung;
     KeyboardView keyboardView;
     boolean isShifted;
     int English_Korean;
@@ -71,7 +76,7 @@ public class CustomKeyboardApp extends InputMethodService
         }
 
         Log.i("keystroke", "code:" + primaryCode);
-        Boolean languageUpdate = false;
+        boolean languageUpdate = false;
         List<Keyboard.Key> keys = keyboard.getKeys();
 
         if (primaryCode == 10) {
@@ -169,7 +174,6 @@ public class CustomKeyboardApp extends InputMethodService
                                     inputConnection.commitText(label, 1); // Input the label text
                                     idx1 = choh.indexOf(label.toString());
                                     stage = STAGE_CHOSUNG;
-                                    delete_chosong = true;
 
                                     Log.i("keystroke", "Goes to STAGE_CHOSUNG with " + choh.charAt(idx1) + " idx: " + idx1);
                                 } else { // JUNGSUNG
@@ -184,7 +188,6 @@ public class CustomKeyboardApp extends InputMethodService
                                     inputConnection.commitText(label, 1); // Input the label text
                                     idx1 = choh.indexOf(label.toString());
                                     stage = STAGE_CHOSUNG;
-                                    delete_chosong = true;
                                     Log.i("keystroke", "Goes to STAGE_CHOSUNG with " + choh.charAt(idx1) + " idx: " + idx1);
                                 } else { // JUNGSUNG
                                     // 중성이 들어오면. 이중중성 체크하여
@@ -301,9 +304,7 @@ public class CustomKeyboardApp extends InputMethodService
                                         Log.i("keystroke", "keep STAGE_CHOSUNG with " + choh.charAt(idx1) + " idx: " + idx1);
                                     }
                                 } else {
-                                    if (delete_chosong) {
-                                        inputConnection.deleteSurroundingText(1, 0);
-                                    }
+                                    inputConnection.deleteSurroundingText(1, 0);
                                     idx2 = jung.indexOf(label.toString());
                                     idx3 = 0;
                                     Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + " and Jungsung with " + jung.charAt(idx2) + " idx: " + idx2);
@@ -323,6 +324,9 @@ public class CustomKeyboardApp extends InputMethodService
                                     idx3 = jong.indexOf(label.toString()) + 1;
                                     Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with " + jong.charAt(idx3 - 1) + " idx: " + idx3);
                                     int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
+
+                                    prev_cho_jung_DanjaumJongsung = unicodeCodePoint;
+
                                     char[] charArray = Character.toChars(unicodeCodePoint);
                                     String koreanCharacter = new String(charArray);
                                     Log.i("keystroke", "Final: " + koreanCharacter);
@@ -391,7 +395,10 @@ public class CustomKeyboardApp extends InputMethodService
                                     }
                                 }
                             } else if (stage == STAGE_JONGSUNG_OR_NEW) {
-                                // 초중종으로 글자를 끝냈는데,다시 자음이 들어오면 이중종성(STAGE_INITIAL)이거나 새로운 초성(GOTO_CHOSONG)일 것이고
+                                // 초중종으로 글자를 끝냈는데,다시 자음이 들어오면 이중종성(STAGE_??)이거나 새로운 초성(GOTO_CHOSONG)일 것이고
+                                // STAGE_?? 은 STAGE_INITIAL_OR_CHOSUNG 인데.. 그 이유는 정말 이중종성이이서 initial 과 같은 경우가 있을 수 있고..
+                                // 사실은 이중종성이 아니고 새로운 글자의 초성일 수도 있기 때문이다.
+
                                 if (jaumIndex != -1) {
 //                                    0없음, 1‘ㄱ’, 2‘ㄲ’, 3‘ㄳ’, 4‘ㄴ’, 5‘ㄵ’, 6‘ㄶ’, 7‘ㄷ’, 8‘ㄹ’, 9‘ㄺ’, 10‘ㄻ’,
 //                                    11‘ㄼ’, 12‘ㄽ’, 13‘ㄾ’, 14‘ㄿ’, 15‘ㅀ’, 16‘ㅁ’, 17‘ㅂ’, 18‘ㅄ’,19 ‘ㅅ’, 20‘ㅆ’, 21‘ㅇ’, 22‘ㅈ’, 23‘ㅊ’, 24‘ㅋ’, 25‘ㅌ’, 26‘ㅍ’, 27‘ㅎ’
@@ -406,8 +413,8 @@ public class CustomKeyboardApp extends InputMethodService
                                         String koreanCharacter = new String(charArray);
                                         Log.i("keystroke", "Final: " + koreanCharacter);
                                         inputConnection.commitText(koreanCharacter, 1);
-                                        stage = STAGE_INITIAL;
-                                        Log.i("keystroke", "Goes to STAGE_INITIAL");
+                                        stage = STAGE_INITIAL_OR_CHOSUNG;
+                                        Log.i("keystroke", "Goes to STAGE_INITIAL_OR_CHOSUNG");
                                     } else if ((idx3 == 4) && (jaumIndex==12 || jaumIndex==18)) { // ㄴ --> ㄵ ㄶ
                                         idx3 = (jaumIndex == 12) ? 5 : 6;
                                         inputConnection.deleteSurroundingText(1, 0);
@@ -418,8 +425,8 @@ public class CustomKeyboardApp extends InputMethodService
                                         String koreanCharacter = new String(charArray);
                                         Log.i("keystroke", "Final: " + koreanCharacter);
                                         inputConnection.commitText(koreanCharacter, 1);
-                                        stage = STAGE_INITIAL;
-                                        Log.i("keystroke", "Goes to STAGE_INITIAL");
+                                        stage = STAGE_INITIAL_OR_CHOSUNG;
+                                        Log.i("keystroke", "Goes to STAGE_INITIAL_OR_CHOSUNG");
                                     }  else if ((idx3 == 8) && (jaumIndex==0 || jaumIndex==6 || jaumIndex==7|| jaumIndex==9 || jaumIndex==16|| jaumIndex==17|| jaumIndex==18) ) { // ㄹ --> ㄺ ㄻ ㄼ ㄽ ㄾ ㄿ ㅀ
                                         if (jaumIndex==0) { // 0 --> 9
                                             idx3 = 9;
@@ -438,8 +445,8 @@ public class CustomKeyboardApp extends InputMethodService
                                         String koreanCharacter = new String(charArray);
                                         Log.i("keystroke", "Final: " + koreanCharacter);
                                         inputConnection.commitText(koreanCharacter, 1);
-                                        stage = STAGE_INITIAL;
-                                        Log.i("keystroke", "Goes to STAGE_INITIAL");
+                                        stage = STAGE_INITIAL_OR_CHOSUNG;
+                                        Log.i("keystroke", "Goes to STAGE_INITIAL_OR_CHOSUNG");
                                     }
                                     else if  ( (idx3 == 17) && (jaumIndex==9) ) { // ㅂ --> ㅄ
                                         idx3 = 18;
@@ -451,8 +458,8 @@ public class CustomKeyboardApp extends InputMethodService
                                         String koreanCharacter = new String(charArray);
                                         Log.i("keystroke", "Final: " + koreanCharacter);
                                         inputConnection.commitText(koreanCharacter, 1);
-                                        stage = STAGE_INITIAL;
-                                        Log.i("keystroke", "Goes to STAGE_INITIAL");
+                                        stage = STAGE_INITIAL_OR_CHOSUNG;
+                                        Log.i("keystroke", "Goes to STAGE_INITIAL_OR_CHOSUNG");
                                     }
                                     // 아니라면(즉, 이중자음이 아니라면 입력된 초성을 추가 출력하고 stage_chosung 유지
                                     else {
@@ -460,7 +467,6 @@ public class CustomKeyboardApp extends InputMethodService
                                         inputConnection.commitText(label, 1); // Input the label text
                                         idx1 = jaumIndex;
                                         stage = STAGE_CHOSUNG;
-                                        delete_chosong = true;
                                         Log.i("keystroke", "Goes to STAGE_CHOSUNG with " + choh.charAt(idx1) + " idx: " + idx1);
                                     }
 
@@ -492,7 +498,65 @@ public class CustomKeyboardApp extends InputMethodService
                                     stage = STAGE_JUNGSUNG;
                                     Log.i("keystroke", "Goes to STAGE_JUNGSUNG with idx1,idx2:" + idx1 + ", " + idx2);
                                 }
+                            } else if (stage == STAGE_INITIAL_OR_CHOSUNG) {
+                                // 이전글자는 입력 이중종성이었다.
+                                // 자음이 입력되면 해당 음을 출력하고 STAGE_CHOSUNG 으로 이동하면 된다. STAGE_INITIAL 에서의 자음입력시 동작과 동일하다.
+                                if (jaumIndex != -1) {
+                                    inputConnection.commitText(label, 1); // Input the label text
+                                    idx1 = choh.indexOf(label.toString());
+                                    stage = STAGE_CHOSUNG;
+                                    Log.i("keystroke", "Goes to STAGE_CHOSUNG with " + choh.charAt(idx1) + " idx: " + idx1);
+                                }
+                                // 모음이 입력되면 이중종성의 첫번째자음는 이전글자를 갱신하는데 사용하고, 이중종성의 두번째 자음은 새롭게 입력된 모음과 합쳐 새로운 글자를 만든다.
+                                // 그래서 이동할 stage는 STAGE_JUNGSUNG 이다.
+                                else {
+                                    // 이중종성에서 글자를 뜯어내는건 할수는 있지만 코딩이 지저분하다. 그러니 이 stage 로 넘어오기전에 이미 필요한 값을 미리 확보하는게 더 편리하다.
+                                    // 그냥 functional coding 관점에서는 지저분한 코딩이긴 한데. 그게 쉬우니까 그렇게 하기로 한다. (사실 이러면 나중에 백space 동작으로 자모 한글자씩 지울때
+                                    // 분명 문제가 생긴다는 게 보인다. 그렇지만... 지금은 그 단계가 아니니까...)
+                                    // JONGSUNG_OR_NEW 로 들어와서 새로운 이중종성으로 바꾸기 전의 글자를 기억해 둘 필요가 있다.
+                                    // 그런데 그 글자는 STAGE_JUNGSUNG 에서 자음을 받아 종성으로 만들던 시점의 글자코드이다. 그걸 기억하자. variable name: prev_cho_jung_DanjaumJongsung;
+                                    // 그리고 이중종성의 두번째 자음은 JONGSUNG_OR_NEW 에서 입력받은 자임이다. 그걸 기억하자. variable name: last_jaumIndex;
+                                    // 다만 last_jaumIndex 은 그냥 구현의 편의상.. 또는 나중을 위해, 항상 기억해 두기로 하자. 당장 필요는 없지만, last_moumIndex 도 만들어두자.
+                                    // 만드는 김에 last_was_jaum 이라는 boolean 도 만들어 두자.
+
+                                    // 이전 글자 지우고
+                                    Log.i("keystroke", "Delete previous char and show ex of previous.");
+                                    inputConnection.deleteSurroundingText(1, 0);
+
+                                    // 새로운 단자음 종성으로 구성된 글자를 출력하고
+                                    char[] charArray = Character.toChars(prev_cho_jung_DanjaumJongsung);
+                                    String koreanCharacter = new String(charArray);
+                                    Log.i("keystroke", "Final: " + koreanCharacter);
+                                    inputConnection.commitText(koreanCharacter, 1);
+
+                                    // 새로운 자음/모음 조합을 출력한다.
+                                    idx1 = last_jaumIndex;
+                                    idx2 = jung.indexOf(label.toString());
+                                    idx3 = 0;
+                                    Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + " and Jungsung with " + jung.charAt(idx2) + " idx: " + idx2);
+                                    int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
+                                    charArray = Character.toChars(unicodeCodePoint);
+                                    koreanCharacter = new String(charArray);
+                                    Log.i("keystroke", "Final: " + koreanCharacter);
+                                    inputConnection.commitText(koreanCharacter, 1);
+
+                                    stage = STAGE_JUNGSUNG;
+                                    Log.i("keystroke", "Goes to STAGE_JUNGSUNG");
+                                }
+                            } else {
+                                Toast.makeText(this, "Unsupported Stage. Goto Initial", Toast.LENGTH_LONG).show();
+                                stage = STAGE_INITIAL;
+                                Log.i("keystroke", "Goes to STAGE_INITIAL because of unexpected automata state");
                             }
+                        }
+                        if (jaumIndex != -1) {
+                            last_jaumIndex = jaumIndex;
+                            last_was_jaum = true;
+                        }
+
+                        if (moumIndex != -1) {
+                            last_moumIndex = moumIndex;
+                            last_was_jaum = false;
                         }
                     }
                     isShifted = false;
@@ -614,7 +678,7 @@ public class CustomKeyboardApp extends InputMethodService
     }
 
 
-    class KeyMapping {
+    static class KeyMapping {
         public char englishKey;
         public char koreanCharacter;
 

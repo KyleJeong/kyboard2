@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
@@ -20,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
         InputMethodManager imeManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         List<InputMethodInfo> enabledMethods = imeManager.getEnabledInputMethodList();
-
+        Log.i("activity", "MainActivity is executed");
         boolean checkPass = false;
         for (InputMethodInfo method : enabledMethods) {
             if (method.getPackageName().equals("com.young2000.kyboard2")) {
