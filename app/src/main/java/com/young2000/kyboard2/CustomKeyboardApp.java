@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputConnection;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -43,9 +44,23 @@ public class CustomKeyboardApp extends InputMethodService
         mappingList = new ArrayList<>();
         markMappingList = new ArrayList<>();
 
-        char[] keys =   {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
-        char[] values = {'ㅁ', 'ㅠ', 'ㅊ', 'ㅇ', 'ㄷ', 'ㄹ', 'ㅎ', 'ㅗ', 'ㅑ', 'ㅓ', 'ㅏ', 'ㅣ', 'ㅡ', 'ㅜ', 'ㅐ', 'ㅔ', 'ㅂ', 'ㄱ', 'ㄴ', 'ㅅ', 'ㅕ', 'ㅍ', 'ㅈ', 'ㅌ', 'ㅛ', 'ㅋ'};
-        char[] markValues = {'.', '<', 'c', '\'', 'e', '\"', '-', '_', 'i', '+', '*', '/', '?', '>', 'o', 'p', 'q', 'r', ',', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
+        char[] keys =   {
+                '0','1','2','3','4','5','6','7','8','9', // 10
+                'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', // 10
+                'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', // 9
+                'z', 'x', 'c', 'v', 'b', 'n', 'm' }; // 7
+
+        char[] values = {
+                '0','1','2','3','4','5','6','7','8','9', // 10
+                'ㅂ', 'ㅈ', 'ㄷ', 'ㄱ', 'ㅅ', 'ㅛ', 'ㅕ', 'ㅑ', 'ㅐ', 'ㅔ', // 10
+                'ㅁ', 'ㄴ', 'ㅇ', 'ㄹ', 'ㅎ', 'ㅗ', 'ㅓ', 'ㅏ', 'ㅣ', // 9
+                'ㅋ', 'ㅌ', 'ㅊ', 'ㅍ', 'ㅠ', 'ㅜ', 'ㅡ'}; // 7
+
+        char[] markValues = {
+                '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', // 10
+                '~','|','\\','₩','♬','※','±','º','\'','\"', // 10
+                '`', '+', '-', '{', '}', '[', ']', ':', ';', // 9
+                '<', '>', '.', ',', '?', '/', '~'};  // 7
 
         for (int i = 0; i < keys.length; i++) {
             mappingList.add(new KeyMapping(keys[i], values[i]));
@@ -589,6 +604,7 @@ public class CustomKeyboardApp extends InputMethodService
                         }
                     }
                     isShifted = false;
+                    languageUpdate = true;
                     break;
                 }
             }
@@ -616,9 +632,9 @@ public class CustomKeyboardApp extends InputMethodService
                             if (mapping.englishKey == (char)pmCode) {
                                 if (English_Korean == 0) {
                                     if (!isShifted) {
-                                        key.label = String.valueOf(mapping.englishKey).toUpperCase();
-                                    } else {
                                         key.label = String.valueOf(mapping.englishKey);
+                                    } else {
+                                        key.label = String.valueOf(mapping.englishKey).toUpperCase();
                                     }
                                 } else {
                                     key.label = String.valueOf(mapping.anotherCharacter);
@@ -647,10 +663,10 @@ public class CustomKeyboardApp extends InputMethodService
                 }
             }
 
+            keyboardView.invalidateAllKeys(); // Refresh key labels after shift state changes
             languageUpdate = false;
         }
 
-        keyboardView.invalidateAllKeys(); // Refresh key labels after shift state changes
     }
 
 
