@@ -147,6 +147,9 @@ public class CustomKeyboardApp extends InputMethodService
                         11‘ㄼ’, 12‘ㄽ’, 13‘ㄾ’, 14‘ㄿ’, 15‘ㅀ’, 16‘ㅁ’, 17‘ㅂ’, 18‘ㅄ’,19 ‘ㅅ’, 20‘ㅆ’, 21‘ㅇ’, 22‘ㅈ’, 23‘ㅊ’, 24‘ㅋ’, 25‘ㅌ’, 26‘ㅍ’, 27‘ㅎ’
                         예를 들어 한글의 첫 글자인 ‘가’ 는 0*21*28+0*28+0+0xAC00 이므로 BASE 코드 값이 됩니다. 그리고 초성의 시작점인 ‘ㄱ’은 0x1100이며 중성의 시작점인 ‘ㅏ’는 0x1161입니다.
                          */
+                        // 자음으로 초/종성을 다룰때 주의할 점:
+                            // 자음중 초성은 될 수 있지만, 종성이 되지 못하는 것이 있으니 "4ㄸ8ㅃ13ㅉ";
+
                         String jaum = "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ";
                         // String jaum = 0ㄱ,1ㄲ,2ㄴ,3ㄷ,4ㄸ,5ㄹ,6ㅁ,7ㅂ,8ㅃ,9ㅅ,10ㅆ,11ㅇ,12ㅈ,13ㅉ,14ㅊ,15ㅋ,16ㅌ,17ㅍ,18ㅎ";
                         String moum = "ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅛㅜㅠㅡㅣ";
@@ -319,20 +322,30 @@ public class CustomKeyboardApp extends InputMethodService
                             } else if (stage == STAGE_JUNGSUNG) {
                                 // 중성까지 왔는데 자음이면, 이전글자를 지우고 초/중/종 완벽한 글자를 만든다음. STAGE_JONGSUNG_OR_NEW로 이동
                                 if (jaumIndex != -1) {
-                                    inputConnection.deleteSurroundingText(1, 0);
+                                    idx3 = jong.indexOf(label.toString());
+                                    // 특수한 경우가 있는데. ㄸㅃㅉ 입력은 종성으로 허용되지 않으므로 새로운 초성이 입력된 것으로 간주해야 함
+                                    if (idx3==-1) { // Same as
+                                        inputConnection.commitText(label, 1); // Input the label text
+                                        idx1 = choh.indexOf(label.toString());
+                                        stage = STAGE_CHOSUNG;
+                                        Log.i("keystroke", "New Jaum is not allowed for Jongsung, so it is considered as a new Chosung");
+                                        Log.i("keystroke", "Goes to STAGE_CHOSUNG with " + choh.charAt(idx1) + " idx: " + idx1);
+                                    } else {
+                                        inputConnection.deleteSurroundingText(1, 0);
+                                        idx3 += 1;
+                                        Log.i("keystroke", label.toString() + " " + idx3);
+                                        Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with " + jong.charAt(idx3 - 1) + " idx: " + idx3);
+                                        int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
 
-                                    idx3 = jong.indexOf(label.toString()) + 1;
-                                    Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with " + jong.charAt(idx3 - 1) + " idx: " + idx3);
-                                    int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
+                                        prev_cho_jung_DanjaumJongsung = unicodeCodePoint;
 
-                                    prev_cho_jung_DanjaumJongsung = unicodeCodePoint;
-
-                                    char[] charArray = Character.toChars(unicodeCodePoint);
-                                    String koreanCharacter = new String(charArray);
-                                    Log.i("keystroke", "Final: " + koreanCharacter);
-                                    inputConnection.commitText(koreanCharacter, 1);
-                                    stage = STAGE_JONGSUNG_OR_NEW;
-                                    Log.i("keystroke", "Goes to STAGE_JONGSUNG_OR_NEW");
+                                        char[] charArray = Character.toChars(unicodeCodePoint);
+                                        String koreanCharacter = new String(charArray);
+                                        Log.i("keystroke", "Final: " + koreanCharacter);
+                                        inputConnection.commitText(koreanCharacter, 1);
+                                        stage = STAGE_JONGSUNG_OR_NEW;
+                                        Log.i("keystroke", "Goes to STAGE_JONGSUNG_OR_NEW");
+                                    }
                                 }
                                 // 초/중성 상태인데,다시 모음이면, 이중모음이거나, 새로운 중성 only 상태여야 한다.
                                 // 이중모음이면 이전글자를 지우고.. 새롭게 쓰고 STAGE_JUNGSUNG 유지
