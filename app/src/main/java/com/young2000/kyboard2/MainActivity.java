@@ -8,6 +8,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
@@ -19,6 +20,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        TextView info = findViewById(R.id.InformationText);
+
         InputMethodManager imeManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         List<InputMethodInfo> enabledMethods = imeManager.getEnabledInputMethodList();
         Log.i("activity", "MainActivity is executed");
@@ -27,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
             if (method.getPackageName().equals("com.young2000.kyboard2")) {
                 // Your keyboard is enabled
                 Toast.makeText(this, "Kyboard is registered", Toast.LENGTH_LONG).show();
+                info.setText(info.getText()+"\nKyboard is registered already");
                 checkPass = true;
             }
         }
@@ -41,9 +45,11 @@ public class MainActivity extends AppCompatActivity {
         if (selectedKeyboardId != null && selectedKeyboardId.contains("com.young2000.kyboard2")) {
             // Your keyboard is currently selected
             Toast.makeText(this, "Kyboard is selected currently", Toast.LENGTH_LONG).show();
+            info.setText(info.getText()+"\nKyboard is selected already");
         } else {
             // Your keyboard is not currently selected
             Toast.makeText(this, "Kyboard is not selected currently", Toast.LENGTH_LONG).show();
+            info.setText(info.getText()+"\nKyboard is note selected. If you want to try change the keyboard to Kyboard.");
         }
     }
 }

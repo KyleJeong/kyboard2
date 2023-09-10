@@ -31,8 +31,9 @@
         <Key android:keyLabel="p" android:keyEdgeFlags="right"/>
     </Row>
 
-    <Row  android:keyWidth="11%">>
-        <Key android:keyLabel="a" android:keyEdgeFlags="left"  />
+    <Row  android:keyWidth="9%">>
+        <!--The order of horizontalGap and keyEdgeFlags is important. Don't change the order -->
+        <Key android:keyLabel="a" android:horizontalGap="5%" android:keyEdgeFlags="left" />
         <Key android:keyLabel="s" />
         <Key android:keyLabel="d" />
         <Key android:keyLabel="f" />
@@ -53,7 +54,7 @@
         <Key android:keyLabel="b" />
         <Key android:keyLabel="n" />
         <Key android:keyLabel="m" />
-        <Key android:keyLabel="⌫"  android:codes="67" android:keyEdgeFlags="right" />
+        <Key android:keyLabel="⌫"  android:codes="67" android:isRepeatable="true" android:keyEdgeFlags="right" />
 
     </Row>
     <Row  android:keyWidth="10%">
