@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+**
+** Copyright 2010, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="alternates_for_a">áàâãäåāæαά</string>
+    <string name="alternates_for_b">β</string>
+    <string name="alternates_for_c">çčć¢ĉ</string>
+    <string name="alternates_for_d">đΔδ</string>
+    <string name="alternates_for_e">3éèêëē€έε</string>
+    <string name="alternates_for_f">₣</string>
+    <string name="alternates_for_g">ĝǵ</string>
+    <string name="alternates_for_h">ĥ</string>
+    <string name="alternates_for_i">8íìîïī</string>
+    <string name="alternates_for_j">ĵ€£₩¥₹</string>
+    <string name="alternates_for_k">ḱκ</string>
+    <string name="alternates_for_l">£₤λĺ</string>
+    <string name="alternates_for_m">μḿ</string>
+    <string name="alternates_for_n">ñń</string>
+    <string name="alternates_for_o">9óòôõöōøΩω</string>
+    <string name="alternates_for_p">0π₱ṕΠπρΦφΨψ</string>
+    <string name="alternates_for_q">1q́</string>
+    <string name="alternates_for_r">4ŕΓγλ</string>
+    <string name="alternates_for_s">§ßšŝΣ</string>
+    <string name="alternates_for_t">5t́θ</string>
+    <string name="alternates_for_u">7úùûüūŭμ</string>
+    <string name="alternates_for_v">v́</string>
+    <string name="alternates_for_w">2Ωω</string>
+    <string name="alternates_for_x">ẃ</string>
+    <string name="alternates_for_y">6ýÿ¥</string>
+    <string name="alternates_for_z">žźζ</string>
+    <string name="alternates_for_question">,./\'\":;</string>
+
+    <string name="alternates_for_a_umlaut"></string>
+    <string name="alternates_for_ae"></string>
+    <string name="alternates_for_cyrillic_e"></string>
+    <string name="alternates_for_cyrillic_soft_sign"></string>
+    <string name="alternates_for_o_umlaut"></string>
+    <string name="alternates_for_oe"></string>
+</resources>

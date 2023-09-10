@@ -97,9 +97,11 @@ public class CustomKeyboardApp extends InputMethodService
             return; // No keyboard defined, cannot proceed
         }
 
-        Log.i("keystroke", "code:" + primaryCode);
+        Log.i("keystroke", "code:" + primaryCode + " and character is " + (char)primaryCode + "and codes are " + keyCodes);
         boolean languageUpdate = false;
+        boolean primaryFound = false;
         List<Keyboard.Key> keys = keyboard.getKeys();
+
 
         if (primaryCode == 10) {
             // Backspace key pressed
@@ -151,6 +153,7 @@ public class CustomKeyboardApp extends InputMethodService
         } else {
             for (Keyboard.Key key : keys) {
                 if (key.codes[0] == primaryCode) {
+                    primaryFound = true;
                     CharSequence label = key.label;
                     // Non-Shift key pressed
                     Log.i("keystroke", String.valueOf((char) primaryCode));
@@ -608,6 +611,14 @@ public class CustomKeyboardApp extends InputMethodService
                     languageUpdate = true;
                     break;
                 }
+            }
+            // If we havenn't found Primary
+            if (!primaryFound) {
+                //
+                //Font.canDisplay(int)
+                Log.i("keystroke", "handle popupKeys" + Character.toString((char)primaryCode));
+                inputConnection.commitText(Character.toString((char)primaryCode), 1);
+
             }
         }
 
