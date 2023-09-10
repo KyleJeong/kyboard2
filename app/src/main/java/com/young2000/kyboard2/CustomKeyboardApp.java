@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputConnection;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -364,7 +363,7 @@ public class CustomKeyboardApp extends InputMethodService
                                     } else {
                                         inputConnection.deleteSurroundingText(1, 0);
                                         idx3 += 1;
-                                        Log.i("keystroke", label.toString() + " " + idx3);
+                                        Log.i("keystroke", label + " " + idx3);
                                         Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with " + jong.charAt(idx3 - 1) + " idx: " + idx3);
                                         int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
 
