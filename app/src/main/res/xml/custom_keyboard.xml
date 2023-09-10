@@ -42,7 +42,6 @@
         <Key android:keyLabel="j" />
         <Key android:keyLabel="k" />
         <Key android:keyLabel="l"  android:keyEdgeFlags="right" />
-
     </Row>
 
     <Row  android:keyWidth="10%">>
@@ -54,16 +53,16 @@
         <Key android:keyLabel="b" />
         <Key android:keyLabel="n" />
         <Key android:keyLabel="m" />
-        <Key android:keyLabel="." />
+        <Key android:keyLabel="?" />
         <Key android:keyLabel="⌫"  android:codes="67" android:isRepeatable="true" android:keyEdgeFlags="right" />
-
     </Row>
     <Row  android:keyWidth="10%">
         <Key android:keyLabel="!#?" android:keyWidth="10%" android:codes="-1010"  android:keyEdgeFlags="left"/>
         <Key android:keyIcon="@drawable/language" android:keyWidth="10%" android:codes="-1001" />
-        <Key android:keyLabel=" " android:keyWidth="60%" android:codes="32" />
+        <Key android:keyLabel=" " android:keyWidth="40%" android:codes="32" />
+        <Key android:keyLabel="." />
+        <Key android:keyLabel="," />
         <Key android:keyLabel="Enter" android:keyWidth="20%" android:codes="10" android:keyEdgeFlags="right"/>
-
     </Row>
 
 </Keyboard>
