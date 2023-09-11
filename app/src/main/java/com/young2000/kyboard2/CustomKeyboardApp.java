@@ -1,11 +1,15 @@
 package com.young2000.kyboard2;
 
+import static android.view.inputmethod.InputConnection.CURSOR_UPDATE_MONITOR;
+
+import android.graphics.Rect;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.CursorAnchorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.Toast;
 
@@ -75,6 +79,32 @@ public class CustomKeyboardApp extends InputMethodService
         return keyboardView;
     }
 
+
+    @Override
+    public void onBindInput () {
+        super.onBindInput();
+        // 새로운 입력창으로 바뀔때, 한글의 이전 상태를 지우고 새롭게 시작하도록 함.
+        stage = STAGE_INITIAL;
+        Log.i("keystroke", "new bind");
+    }
+
+//    @Override
+//    public void onUpdateCursor (Rect newCursor){
+//        // 커서를 옮기면, 한글의 이전 상태를 그대로 두고. 새롭게 시작하도록 함
+//        super.onUpdateCursor(newCursor);
+//        stage = STAGE_INITIAL;
+//        Log.i("keystroke", "new cursor1");
+//    }
+//
+//    @Override
+//    public void onUpdateCursorAnchorInfo (CursorAnchorInfo cursorAnchorInfo) {
+//        // 커서를 옮기면, 한글의 이전 상태를 그대로 두고. 새롭게 시작하도록 함
+//        super.onUpdateCursorAnchorInfo(cursorAnchorInfo);
+//        stage = STAGE_INITIAL;
+//        Log.i("keystroke", "new cursor2");
+//    }
+
+
     @Override
     public void onPress(int primaryCode) {
 
@@ -88,16 +118,19 @@ public class CustomKeyboardApp extends InputMethodService
     @Override
     public void onKey(int primaryCode, int[] keyCodes) {
         InputConnection inputConnection = getCurrentInputConnection();
+        
         if (inputConnection == null) {
             return; // No input connection, cannot proceed
         }
+
+        //inputConnection.requestCursorUpdates(CURSOR_UPDATE_MONITOR);
 
         Keyboard keyboard = keyboardView.getKeyboard();
         if (keyboard == null) {
             return; // No keyboard defined, cannot proceed
         }
 
-        Log.i("keystroke", "code:" + primaryCode + " and character is " + (char)primaryCode + "and codes are " + keyCodes);
+        Log.i("keystroke", "code:" + primaryCode + " and character is " + (char)primaryCode + " and codes are " + keyCodes);
         boolean languageUpdate = false;
         boolean primaryFound = false;
         List<Keyboard.Key> keys = keyboard.getKeys();
@@ -110,16 +143,12 @@ public class CustomKeyboardApp extends InputMethodService
             inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
             // If the Enter key is stroked, clean the isShift variable to return to normal.
             isShifted = false;
-            if (English_Korean==1) {
-                stage = STAGE_INITIAL;
-            }
+            stage = STAGE_INITIAL;
         } else if (primaryCode == 32) {
             // Space key pressed
             Log.i("keystroke", "Space key pressed");
             inputConnection.commitText(" ", 1); // Input a space
-            if (English_Korean==1) {
-                stage=STAGE_INITIAL;
-            }
+            stage = STAGE_INITIAL;
         } else if (primaryCode == -1) {
             // Shift key pressed
             Log.i("keystroke", "Shift key pressed");
@@ -130,26 +159,20 @@ public class CustomKeyboardApp extends InputMethodService
             Log.i("keystroke", "Backspace key pressed");
             inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
             inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL));
-            if (English_Korean==1) {
-                stage = STAGE_INITIAL;
-            }
+            stage = STAGE_INITIAL;
         } else if (primaryCode == -1001) {
             Log.i("keystroke", "Language key pressed");
             English_Korean = (English_Korean + 1) % 2;
             languageUpdate = true;
             markEnabled = false;
             isShifted = false;  // reset Shift when the language is updated
-            if (English_Korean == 1) {
-                stage = STAGE_INITIAL;
-            }
+            stage = STAGE_INITIAL;
         } else if (primaryCode == -1010){
             Log.i("keystroke", "mark key pressed");
             languageUpdate = true;
             markEnabled = !markEnabled;
             isShifted = false;  // reset Shift when the language is updated
-            if (English_Korean == 1) {
-                stage = STAGE_INITIAL;
-            }
+            stage = STAGE_INITIAL;
         } else {
             for (Keyboard.Key key : keys) {
                 if (key.codes[0] == primaryCode) {
@@ -630,7 +653,7 @@ public class CustomKeyboardApp extends InputMethodService
                 int pmCode = key.codes[0];
                 if (label != null && pmCode != 10 && pmCode != 32 && pmCode != -1 && pmCode != 67 && pmCode != 1001 && pmCode != 1010 ) {
                     // key의 pmCode        로 MappingList의 위치를 찾아서
-                    Log.i("keystroke", "key is : " + (char)pmCode + " code: " + pmCode);
+                    // Log.i("keystroke", "key is : " + (char)pmCode + " code: " + pmCode);
                     if (markEnabled) {
                         for (KeyMapping mapping : markMappingList) {
                             if (mapping.englishKey == (char)pmCode) {
