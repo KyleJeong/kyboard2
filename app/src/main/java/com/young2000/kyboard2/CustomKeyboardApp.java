@@ -1,20 +1,17 @@
 package com.young2000.kyboard2;
 
-import static android.view.inputmethod.InputConnection.CURSOR_UPDATE_MONITOR;
-
-import android.graphics.Rect;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.CursorAnchorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class CustomKeyboardApp extends InputMethodService
         implements KeyboardView.OnKeyboardActionListener {
@@ -34,6 +31,7 @@ public class CustomKeyboardApp extends InputMethodService
     boolean isShifted;
     boolean markEnabled;
     int English_Korean;
+    CharSequence lastText;
     List<KeyMapping> mappingList;
     List<KeyMapping> markMappingList;
     @Override
@@ -76,6 +74,7 @@ public class CustomKeyboardApp extends InputMethodService
         English_Korean = 0;
         stage = STAGE_INITIAL;
         markEnabled = false;
+        lastText = null;
         return keyboardView;
     }
 
@@ -87,23 +86,6 @@ public class CustomKeyboardApp extends InputMethodService
         stage = STAGE_INITIAL;
         Log.i("keystroke", "new bind");
     }
-
-//    @Override
-//    public void onUpdateCursor (Rect newCursor){
-//        // 커서를 옮기면, 한글의 이전 상태를 그대로 두고. 새롭게 시작하도록 함
-//        super.onUpdateCursor(newCursor);
-//        stage = STAGE_INITIAL;
-//        Log.i("keystroke", "new cursor1");
-//    }
-//
-//    @Override
-//    public void onUpdateCursorAnchorInfo (CursorAnchorInfo cursorAnchorInfo) {
-//        // 커서를 옮기면, 한글의 이전 상태를 그대로 두고. 새롭게 시작하도록 함
-//        super.onUpdateCursorAnchorInfo(cursorAnchorInfo);
-//        stage = STAGE_INITIAL;
-//        Log.i("keystroke", "new cursor2");
-//    }
-
 
     @Override
     public void onPress(int primaryCode) {
@@ -123,8 +105,6 @@ public class CustomKeyboardApp extends InputMethodService
             return; // No input connection, cannot proceed
         }
 
-        //inputConnection.requestCursorUpdates(CURSOR_UPDATE_MONITOR);
-
         Keyboard keyboard = keyboardView.getKeyboard();
         if (keyboard == null) {
             return; // No keyboard defined, cannot proceed
@@ -135,6 +115,12 @@ public class CustomKeyboardApp extends InputMethodService
         boolean primaryFound = false;
         List<Keyboard.Key> keys = keyboard.getKeys();
 
+        CharSequence newText = inputConnection.getTextBeforeCursor(1000, 0);
+        Log.i("keystroke", "Previous string before cursor aprior new input" + newText);
+        if (lastText != null && !lastText.equals(newText )) {
+            Log.i("keystroke", "Cursor is updated anyhow.. by user or UI");
+            stage = STAGE_INITIAL;
+        }
 
         if (primaryCode == 10) {
             // Backspace key pressed
@@ -702,6 +688,8 @@ public class CustomKeyboardApp extends InputMethodService
             languageUpdate = false;
         }
 
+        lastText = inputConnection.getTextBeforeCursor(1000,0);
+        Log.i("keystroke", "Final string before cursor:" + lastText);
     }
 
 
