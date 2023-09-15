@@ -2,6 +2,7 @@ package com.young2000.kyboard2;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
             if (method.getPackageName().equals("com.young2000.kyboard2")) {
                 // Your keyboard is enabled
                 Toast.makeText(this, "Kyboard is registered", Toast.LENGTH_LONG).show();
-                info.setText(info.getText()+"\nKyboard is registered already");
+                info.setText(info.getText() + "\nKyboard is registered already");
                 checkPass = true;
             }
         }
@@ -45,11 +46,21 @@ public class MainActivity extends AppCompatActivity {
         if (selectedKeyboardId != null && selectedKeyboardId.contains("com.young2000.kyboard2")) {
             // Your keyboard is currently selected
             Toast.makeText(this, "Kyboard is selected currently", Toast.LENGTH_LONG).show();
-            info.setText(info.getText()+"\nKyboard is selected already");
+            info.setText(info.getText() + "\nKyboard is selected already");
         } else {
             // Your keyboard is not currently selected
             Toast.makeText(this, "Kyboard is not selected currently", Toast.LENGTH_LONG).show();
-            info.setText(info.getText()+"\nKyboard is note selected. If you want to try change the keyboard to Kyboard.");
+            info.setText(info.getText() + "\nKyboard is not selected. If you want to try change the keyboard to Kyboard.");
+
+//            if (imeManager != null){
+//                //inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+//                final Runnable r = new Runnable() {
+//                    public void run() {
+//                        //imeManager.showInputMethodPicker();
+//                        imeManager.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+//                    }
+//                };
+//            }
         }
     }
 }
