@@ -247,6 +247,15 @@ public class CustomKeyboardApp extends InputMethodService
         Log.i("keystroke", "Final string before cursor:" + lastText);
     }
 
+    private void HangulCharacterUpdate(InputConnection inputConnection, char charAt) {
+        HangulCharacterUpdate(inputConnection, Character.toString(charAt));
+    }
+
+    private void HangulCharacterUpdate(InputConnection inputConnection, CharSequence text) {
+        inputConnection.deleteSurroundingText(1, 0);
+        inputConnection.commitText(text, 1);
+    }
+
     private void HangulProcess(InputConnection inputConnection, CharSequence label) {
         // state
         /*  * 0:""
@@ -326,10 +335,9 @@ public class CustomKeyboardApp extends InputMethodService
                         //9, 10, 11 만들기
                         idx2 = (9 + jungIndex);
                         if (idx2 > 20) idx2 = 11;
-                        inputConnection.deleteSurroundingText(1, 0);
                         Log.i("keystroke", "Label matches with jung update at index: " + idx2);
                         Log.i("keystroke", "Final: " + jung.charAt(idx2));
-                        inputConnection.commitText(String.valueOf(jung.charAt(idx2)), 1);
+                        HangulCharacterUpdate(inputConnection, jung.charAt(idx2));
                         stage = STAGE_INITIAL;
                         Log.i("keystroke", "Goto STAGE_INITIAL");
                     }
@@ -338,20 +346,18 @@ public class CustomKeyboardApp extends InputMethodService
                         //14,15,16 만들기
                         idx2 = (10 + jungIndex);
                         if (idx2 > 20) idx2 = 16;
-                        inputConnection.deleteSurroundingText(1, 0);
                         Log.i("keystroke", "Label matches with jung update at index: " + idx2);
                         Log.i("keystroke", "Final: " + jung.charAt(idx2));
-                        inputConnection.commitText(String.valueOf(jung.charAt(idx2)), 1);
+                        HangulCharacterUpdate(inputConnection, jung.charAt(idx2));
                         stage = STAGE_INITIAL;
                         Log.i("keystroke", "Goto STAGE_INITIAL");
                     }
                     // - 인데,ㅣ 가 오면 ok
                     else if (idx2 == 18 && jungIndex == 20) {
                         idx2 = 19;
-                        inputConnection.deleteSurroundingText(1, 0);
                         Log.i("keystroke", "Label matches with jung update at index: " + idx2);
                         Log.i("keystroke", "Final: " + jung.charAt(idx2));
-                        inputConnection.commitText(String.valueOf(jung.charAt(idx2)), 1);
+                        HangulCharacterUpdate(inputConnection, jung.charAt(idx2));
                         stage = STAGE_INITIAL;
                         Log.i("keystroke", "Goto STAGE_INITIAL");
                     }
@@ -382,18 +388,16 @@ public class CustomKeyboardApp extends InputMethodService
 
                     if ((idx1 == 0) && (jaumIndex == 9)) { // ㄱ --> ㄳ
                         idx3 = 2;
-                        inputConnection.deleteSurroundingText(1, 0);
                         Log.i("keystroke", "Label matches with jong update at index: " + idx3);
                         Log.i("keystroke", "Final: " + jong.charAt(idx3));
-                        inputConnection.commitText(String.valueOf(jong.charAt(idx3)), 1);
+                        HangulCharacterUpdate(inputConnection, jong.charAt(idx3));
                         stage = STAGE_INITIAL;
                         Log.i("keystroke", "Goto STAGE_INITIAL");
                     } else if ((idx1 == 2) && (jaumIndex == 12 || jaumIndex == 18)) { // ㄴ --> ㄵ ㄶ
                         idx3 = (jaumIndex == 12) ? 4 : 5;
-                        inputConnection.deleteSurroundingText(1, 0);
                         Log.i("keystroke", "Label matches with jong update at index: " + idx3);
                         Log.i("keystroke", "Final: " + jong.charAt(idx3));
-                        inputConnection.commitText(String.valueOf(jong.charAt(idx3)), 1);
+                        HangulCharacterUpdate(inputConnection, jong.charAt(idx3));
                         stage = STAGE_INITIAL;
                         Log.i("keystroke", "Goto STAGE_INITIAL");
                     } else if ((idx1 == 5) && liul_comb) { // ㄹ --> ㄺ ㄻ ㄼ ㄽ ㄾ ㄿ ㅀ
@@ -406,18 +410,16 @@ public class CustomKeyboardApp extends InputMethodService
                         } else { // 16~18 --> 12~14
                             idx3 = jaumIndex - 4;
                         }
-                        inputConnection.deleteSurroundingText(1, 0);
                         Log.i("keystroke", "Label matches with jong update at index: " + idx3);
                         Log.i("keystroke", "Final: " + jong.charAt(idx3));
-                        inputConnection.commitText(String.valueOf(jong.charAt(idx3)), 1);
+                        HangulCharacterUpdate(inputConnection, jong.charAt(idx3));
                         stage = STAGE_INITIAL;
                         Log.i("keystroke", "Goto STAGE_INITIAL");
                     } else if ((idx1 == 7) && (jaumIndex == 9)) { // ㅂ --> ㅄ
                         idx3 = 17;
-                        inputConnection.deleteSurroundingText(1, 0);
                         Log.i("keystroke", "Label matches with jong update at index: " + idx3);
                         Log.i("keystroke", "Final: " + jong.charAt(idx3));
-                        inputConnection.commitText(String.valueOf(jong.charAt(idx3)), 1);
+                        HangulCharacterUpdate(inputConnection, jong.charAt(idx3));
                         stage = STAGE_INITIAL;
                         Log.i("keystroke", "Goto STAGE_INITIAL");
                     }
@@ -429,7 +431,6 @@ public class CustomKeyboardApp extends InputMethodService
                         Log.i("keystroke", "keep STAGE_CHOSUNG with " + choh.charAt(idx1) + " idx: " + idx1);
                     }
                 } else {
-                    inputConnection.deleteSurroundingText(1, 0);
                     idx2 = jung.indexOf(label.toString());
                     idx3 = 0;
                     Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + " and Jungsung with " + jung.charAt(idx2) + " idx: " + idx2);
@@ -437,7 +438,7 @@ public class CustomKeyboardApp extends InputMethodService
                     char[] charArray = Character.toChars(unicodeCodePoint);
                     String koreanCharacter = new String(charArray);
                     Log.i("keystroke", "Final: " + koreanCharacter);
-                    inputConnection.commitText(koreanCharacter, 1);
+                    HangulCharacterUpdate(inputConnection, koreanCharacter);
                     stage = STAGE_JUNGSUNG;
                     Log.i("keystroke", "Goes to STAGE_JUNGSUNG");
                 }
@@ -453,7 +454,6 @@ public class CustomKeyboardApp extends InputMethodService
                         Log.i("keystroke", "New Jaum is not allowed for Jongsung, so it is considered as a new Chosung");
                         Log.i("keystroke", "Goes to STAGE_CHOSUNG with " + choh.charAt(idx1) + " idx: " + idx1);
                     } else {
-                        inputConnection.deleteSurroundingText(1, 0);
                         idx3 += 1;
                         Log.i("keystroke", label + " " + idx3);
                         Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with " + jong.charAt(idx3 - 1) + " idx: " + idx3);
@@ -464,7 +464,7 @@ public class CustomKeyboardApp extends InputMethodService
                         char[] charArray = Character.toChars(unicodeCodePoint);
                         String koreanCharacter = new String(charArray);
                         Log.i("keystroke", "Final: " + koreanCharacter);
-                        inputConnection.commitText(koreanCharacter, 1);
+                        HangulCharacterUpdate(inputConnection, koreanCharacter);
                         stage = STAGE_JONGSUNG_OR_NEW;
                         Log.i("keystroke", "Goes to STAGE_JONGSUNG_OR_NEW");
                     }
@@ -481,14 +481,13 @@ public class CustomKeyboardApp extends InputMethodService
                         idx2 = (9 + jungIndex);
                         if (idx2 > 20) idx2 = 11;
                         idx3 = 0;
-                        inputConnection.deleteSurroundingText(1, 0);
                         Log.i("keystroke", "Label matches with jung update at index: " + idx2);
                         Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with ");
                         int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
                         char[] charArray = Character.toChars(unicodeCodePoint);
                         String koreanCharacter = new String(charArray);
                         Log.i("keystroke", "Final: " + koreanCharacter);
-                        inputConnection.commitText(koreanCharacter, 1);
+                        HangulCharacterUpdate(inputConnection, koreanCharacter);
                         Log.i("keystroke", "keep STAGE_JUNGSUNG");
                     }
                     // ㅜ 인데, ㅓ ㅔ ㅣ 가 오면 ok
@@ -497,28 +496,26 @@ public class CustomKeyboardApp extends InputMethodService
                         idx2 = (10 + jungIndex);
                         if (idx2 > 20) idx2 = 16;
                         idx3 = 0;
-                        inputConnection.deleteSurroundingText(1, 0);
                         Log.i("keystroke", "Label matches with jung update at index: " + idx2);
                         Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with ");
                         int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
                         char[] charArray = Character.toChars(unicodeCodePoint);
                         String koreanCharacter = new String(charArray);
                         Log.i("keystroke", "Final: " + koreanCharacter);
-                        inputConnection.commitText(koreanCharacter, 1);
+                        HangulCharacterUpdate(inputConnection, koreanCharacter);
                         Log.i("keystroke", "keep STAGE_JUNGSUNG");
                     }
                     // - 인데,ㅣ 가 오면 ok
                     else if (idx2 == 18 && jungIndex == 20) {
                         idx2 = 19;
                         idx3 = 0;
-                        inputConnection.deleteSurroundingText(1, 0);
                         Log.i("keystroke", "Label matches with jung update at index: " + idx2);
                         Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with ");
                         int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
                         char[] charArray = Character.toChars(unicodeCodePoint);
                         String koreanCharacter = new String(charArray);
                         Log.i("keystroke", "Final: " + koreanCharacter);
-                        inputConnection.commitText(koreanCharacter, 1);
+                        HangulCharacterUpdate(inputConnection, koreanCharacter);
                         Log.i("keystroke", "keep STAGE_JUNGSUNG");
                     }
                     // 아니면 초성없는 중성모드로 이동
@@ -540,26 +537,24 @@ public class CustomKeyboardApp extends InputMethodService
                     // String jaum = 0ㄱ,1ㄲ,2ㄴ,3ㄷ,4ㄸ,5ㄹ,6ㅁ,7ㅂ,8ㅃ,9ㅅ,10ㅆ,11ㅇ,12ㅈ,13ㅉ,14ㅊ,15ㅋ,16ㅌ,17ㅍ,18ㅎ";
                     if ((idx3 == 1) && (jaumIndex == 9)) { // ㄱ --> ㄳ
                         idx3 = 3;
-                        inputConnection.deleteSurroundingText(1, 0);
                         Log.i("keystroke", "Label matches with chong update at index: " + idx3);
                         Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with " + jong.charAt(idx3 - 1) + " idx: " + idx3);
                         int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
                         char[] charArray = Character.toChars(unicodeCodePoint);
                         String koreanCharacter = new String(charArray);
                         Log.i("keystroke", "Final: " + koreanCharacter);
-                        inputConnection.commitText(koreanCharacter, 1);
+                        HangulCharacterUpdate(inputConnection, koreanCharacter);
                         stage = STAGE_INITIAL_OR_CHOSUNG;
                         Log.i("keystroke", "Goes to STAGE_INITIAL_OR_CHOSUNG");
                     } else if ((idx3 == 4) && (jaumIndex == 12 || jaumIndex == 18)) { // ㄴ --> ㄵ ㄶ
                         idx3 = (jaumIndex == 12) ? 5 : 6;
-                        inputConnection.deleteSurroundingText(1, 0);
                         Log.i("keystroke", "Label matches with chong update at index: " + idx3);
                         Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with " + jong.charAt(idx3 - 1) + " idx: " + idx3);
                         int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
                         char[] charArray = Character.toChars(unicodeCodePoint);
                         String koreanCharacter = new String(charArray);
                         Log.i("keystroke", "Final: " + koreanCharacter);
-                        inputConnection.commitText(koreanCharacter, 1);
+                        HangulCharacterUpdate(inputConnection, koreanCharacter);
                         stage = STAGE_INITIAL_OR_CHOSUNG;
                         Log.i("keystroke", "Goes to STAGE_INITIAL_OR_CHOSUNG");
                     } else if ((idx3 == 8) && liul_comb) { // ㄹ --> ㄺ ㄻ ㄼ ㄽ ㄾ ㄿ ㅀ
@@ -572,26 +567,24 @@ public class CustomKeyboardApp extends InputMethodService
                         } else { // 16~18 --> 13~15
                             idx3 = jaumIndex - 3;
                         }
-                        inputConnection.deleteSurroundingText(1, 0);
                         Log.i("keystroke", "Label matches with chong update at index: " + idx3);
                         Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with " + jong.charAt(idx3 - 1) + " idx: " + idx3);
                         int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
                         char[] charArray = Character.toChars(unicodeCodePoint);
                         String koreanCharacter = new String(charArray);
                         Log.i("keystroke", "Final: " + koreanCharacter);
-                        inputConnection.commitText(koreanCharacter, 1);
+                        HangulCharacterUpdate(inputConnection, koreanCharacter);
                         stage = STAGE_INITIAL_OR_CHOSUNG;
                         Log.i("keystroke", "Goes to STAGE_INITIAL_OR_CHOSUNG");
                     } else if ((idx3 == 17) && (jaumIndex == 9)) { // ㅂ --> ㅄ
                         idx3 = 18;
-                        inputConnection.deleteSurroundingText(1, 0);
                         Log.i("keystroke", "Label matches with chong update at index: " + idx3);
                         Log.i("keystroke", "Chosung with " + choh.charAt(idx1) + " idx: " + idx1 + ", Jungsung with " + jung.charAt(idx2) + " idx: " + idx2 + ", Jongsung with " + jong.charAt(idx3 - 1) + " idx: " + idx3);
                         int unicodeCodePoint = idx1 * 21 * 28 + idx2 * 28 + idx3 + 0xAC00;
                         char[] charArray = Character.toChars(unicodeCodePoint);
                         String koreanCharacter = new String(charArray);
                         Log.i("keystroke", "Final: " + koreanCharacter);
-                        inputConnection.commitText(koreanCharacter, 1);
+                        HangulCharacterUpdate(inputConnection, koreanCharacter);
                         stage = STAGE_INITIAL_OR_CHOSUNG;
                         Log.i("keystroke", "Goes to STAGE_INITIAL_OR_CHOSUNG");
                     }
@@ -609,7 +602,6 @@ public class CustomKeyboardApp extends InputMethodService
                 else {
                     // 이전 글자 지우고
                     Log.i("keystroke", "Delete previous and make new");
-                    inputConnection.deleteSurroundingText(1, 0);
                     // 종성 제외한 새 글자로 바꾼다음.
                     int temp = idx3;
                     idx3 = 0;
@@ -618,7 +610,7 @@ public class CustomKeyboardApp extends InputMethodService
                     char[] charArray = Character.toChars(unicodeCodePoint);
                     String koreanCharacter = new String(charArray);
                     Log.i("keystroke", "Final: " + koreanCharacter);
-                    inputConnection.commitText(koreanCharacter, 1);
+                    HangulCharacterUpdate(inputConnection, koreanCharacter);
                     // 새로운 초/중성 구성 글자 출력
                     idx1 = choh.indexOf(jong.charAt(temp - 1));
                     idx2 = jung.indexOf(label.toString());
@@ -655,13 +647,11 @@ public class CustomKeyboardApp extends InputMethodService
 
                     // 이전 글자 지우고
                     Log.i("keystroke", "Delete previous char and show ex of previous.");
-                    inputConnection.deleteSurroundingText(1, 0);
-
                     // 새로운 단자음 종성으로 구성된 글자를 출력하고
                     char[] charArray = Character.toChars(prev_cho_jung_DanjaumJongsung);
                     String koreanCharacter = new String(charArray);
                     Log.i("keystroke", "Final: " + koreanCharacter);
-                    inputConnection.commitText(koreanCharacter, 1);
+                    HangulCharacterUpdate(inputConnection, koreanCharacter);
 
                     // 새로운 자음/모음 조합을 출력한다.
                     idx1 = last_jaumIndex;
