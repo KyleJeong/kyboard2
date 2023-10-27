@@ -6,24 +6,28 @@
     android:keyWidth="20%">
 
 
-    <Row  android:keyWidth="33%">
+    <Row  android:keyWidth="25%">
         <Key android:keyLabel="1" android:keyEdgeFlags="left"/>
         <Key android:keyLabel="2" />
-        <Key android:keyLabel="3" android:keyEdgeFlags="right" />
+        <Key android:keyLabel="3" />
+        <Key android:keyLabel="+" android:keyEdgeFlags="right" />
     </Row>
-    <Row  android:keyWidth="33%">
+    <Row  android:keyWidth="25%">
         <Key android:keyLabel="4" android:keyEdgeFlags="left"/>
         <Key android:keyLabel="5" />
-        <Key android:keyLabel="6" android:keyEdgeFlags="right" />
+        <Key android:keyLabel="6" />
+        <Key android:keyLabel="-" android:keyEdgeFlags="right" />
     </Row>
-    <Row  android:keyWidth="33%">
+    <Row  android:keyWidth="25%">
         <Key android:keyLabel="7" android:keyEdgeFlags="left"/>
         <Key android:keyLabel="8" />
-        <Key android:keyLabel="9" android:keyEdgeFlags="right"/>
-    </Row>
-    <Row  android:keyWidth="33%">
-        <Key android:keyLabel="." android:keyEdgeFlags="left"/>
-        <Key android:keyLabel="0"/>
+        <Key android:keyLabel="9" />
         <Key android:keyLabel="⌫"  android:codes="67" android:isRepeatable="true" android:keyEdgeFlags="right" />
+    </Row>
+    <Row  android:keyWidth="25%">
+        <Key android:keyLabel="," android:keyEdgeFlags="left"/>
+        <Key android:keyLabel="0" />
+        <Key android:keyLabel="." />
+        <Key android:keyLabel="Enter" android:codes="10" android:keyEdgeFlags="right"/>
     </Row>
 </Keyboard>
