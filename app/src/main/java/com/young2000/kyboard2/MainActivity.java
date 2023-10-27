@@ -30,13 +30,13 @@ public class MainActivity extends AppCompatActivity {
         for (InputMethodInfo method : enabledMethods) {
             if (method.getPackageName().equals("com.young2000.kyboard2")) {
                 // Your keyboard is enabled
-                tvRegStatus.setText("Kyboard is registered already");
+                tvRegStatus.setText(R.string.kyboard_is_registered_already);
                 checkPass = true;
                 break;
             }
         }
         if (!checkPass) {
-            tvRegStatus.setText("Kyboard is not registered!");
+            tvRegStatus.setText(R.string.kyboard_is_not_registered);
         }
 
         String selectedKeyboardId = Settings.Secure.getString(getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
@@ -45,18 +45,14 @@ public class MainActivity extends AppCompatActivity {
         TextView tvSelectStatus = findViewById(R.id.selectStatus);
         if (selectedKeyboardId != null && selectedKeyboardId.contains("com.young2000.kyboard2")) {
             // Your keyboard is currently selected
-            tvSelectStatus.setText("Kyboard is selected already");
+            tvSelectStatus.setText(R.string.kyboard_is_selected_already);
         } else {
             // Your keyboard is not currently selected
-            tvSelectStatus.setText("Kyboard is not selected!");
-            //PackageManager ims = getPackageManager();
-            //Log.i("checkSS", String.valueOf(ims.hasSystemFeature("FEATURE_INPUT_METHODS")));
-
-
+            tvSelectStatus.setText(R.string.kyboard_is_not_selected);
         }
     }
 
-    public void KyboarRegistration (View view) {
+    public void KyboardRegistration (View view) {
         //Toast.makeText(this, "Kyboard is not registered", Toast.LENGTH_LONG).show();
         Intent enableIntent = new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS);
         startActivity(enableIntent);
@@ -64,11 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void KyboardSelection(View view) {
         InputMethodManager imeManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-        final Runnable r = new Runnable() {
-            public void run() {
-                imeManager.showInputMethodPicker();
-            }
-        };
+        final Runnable r = imeManager::showInputMethodPicker;
 
         final Handler handler = new Handler();
         handler.postDelayed(r, 1000);

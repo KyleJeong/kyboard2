@@ -3,13 +3,16 @@ package com.young2000.kyboard2;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
+import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -31,6 +34,8 @@ public class CustomKeyboardApp extends InputMethodService
     boolean isShifted;
     boolean markEnabled;
     int English_Korean;
+
+    int lastKeyboardID;
     CharSequence lastText;
     List<KeyMapping> mappingList;
     List<KeyMapping> markMappingList;
@@ -38,10 +43,11 @@ public class CustomKeyboardApp extends InputMethodService
     @Override
     public View onCreateInputView() {
 
+        Log.i("keystroke", "Func - onCreateInputView");
         keyboardView = (KeyboardView) getLayoutInflater().inflate(R.layout.custom_keyboard_layout, null);
-        Keyboard keyboard = new Keyboard(this, R.xml.custom_keyboard);
-        keyboardView.setKeyboard(keyboard);
-        keyboardView.setOnKeyboardActionListener(this);
+        //Keyboard keyboard = new Keyboard(this, R.xml.custom_keyboard);
+        //keyboardView.setKeyboard(keyboard);
+        //keyboardView.setOnKeyboardActionListener(this);
 
         mappingList = new ArrayList<>();
         markMappingList = new ArrayList<>();
@@ -76,16 +82,174 @@ public class CustomKeyboardApp extends InputMethodService
         stage = STAGE_INITIAL;
         markEnabled = false;
         lastText = null;
+        lastKeyboardID = 0;
+        // Get the current input type
+        int inputType = getCurrentInputEditorInfo().inputType;
+
+        // Change the keyboard layout based on the input type
+        changeKeyboardLayout(inputType);
+
+        //keyboardView.setKeyboard(keyboard);
+        keyboardView.setOnKeyboardActionListener(this);
         return keyboardView;
+
     }
 
+    private void changeKeyboardLayout(int inputType) {
+        int layoutResId;
+
+
+        Log.i("keystroke", "type : " + Integer.toHexString(inputType));
+
+        /*
+        InputType.TYPE_CLASS_TEXT:
+        Value: 1 ; 0x1
+        Represents general text input.
+
+        InputType.TYPE_CLASS_NUMBER:
+        Value: 2; 0x2
+        Represents numeric input.
+                InputType.TYPE_CLASS_PHONE:
+
+        Value: 3; 0x3
+        Represents a phone number input.
+                InputType.TYPE_CLASS_DATETIME:
+
+        Value: 4; 0x4
+        Represents a date and time input.
+        InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS:
+
+        Value: 32; 0x20
+        Indicates an email address input.
+                InputType.TYPE_TEXT_VARIATION_PASSWORD:
+
+        Value: 128; 0x80
+        Indicates a password input.
+        InputType.TYPE_NUMBER_FLAG_DECIMAL:
+
+        Value: 8192; 0x2000
+        Allows decimal numbers.
+                InputType.TYPE_NUMBER_FLAG_SIGNED:
+
+        Value: 4096; 0x1000
+        Allows signed numbers (positive and negative).
+                InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS:
+
+        Value: 4096
+        Capitalize all characters.
+                InputType.TYPE_TEXT_FLAG_MULTI_LINE:
+
+        Value: 131072; 0x20000
+        Allows multiline text input.
+        */
+        /*
+         * |-------|-------|-------|-------|
+         *                                 1 TYPE_CLASS_TEXT
+         *                             1     TYPE_TEXT_VARIATION_URI
+         *                            1      TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+         *                            11     TYPE_TEXT_VARIATION_EMAIL_SUBJECT
+         *                           1       TYPE_TEXT_VARIATION_SHORT_MESSAGE
+         *                           1 1     TYPE_TEXT_VARIATION_LONG_MESSAGE
+         *                           11      TYPE_TEXT_VARIATION_PERSON_NAME
+         *                           111     TYPE_TEXT_VARIATION_POSTAL_ADDRESS
+         *                          1        TYPE_TEXT_VARIATION_PASSWORD
+         *                          1  1     TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+         *                          1 1      TYPE_TEXT_VARIATION_WEB_EDIT_TEXT
+         *                          1 11     TYPE_TEXT_VARIATION_FILTER
+         *                          11       TYPE_TEXT_VARIATION_PHONETIC
+         *                          11 1     TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS
+         *                          111      TYPE_TEXT_VARIATION_WEB_PASSWORD
+         *                     1             TYPE_TEXT_FLAG_CAP_CHARACTERS
+         *                    1              TYPE_TEXT_FLAG_CAP_WORDS
+         *                   1               TYPE_TEXT_FLAG_CAP_SENTENCES
+         *                  1                TYPE_TEXT_FLAG_AUTO_CORRECT
+         *                 1                 TYPE_TEXT_FLAG_AUTO_COMPLETE
+         *                1                  TYPE_TEXT_FLAG_MULTI_LINE
+         *               1                   TYPE_TEXT_FLAG_IME_MULTI_LINE
+         *              1                    TYPE_TEXT_FLAG_NO_SUGGESTIONS
+         *             1                     TYPE_TEXT_FLAG_ENABLE_TEXT_CONVERSION_SUGGESTIONS
+         * |-------|-------|-------|-------|
+         *                                1  TYPE_CLASS_NUMBER
+         *                             1     TYPE_NUMBER_VARIATION_PASSWORD
+         *                     1             TYPE_NUMBER_FLAG_SIGNED
+         *                    1              TYPE_NUMBER_FLAG_DECIMAL
+         * |-------|-------|-------|-------|
+         *                                11 TYPE_CLASS_PHONE
+         * |-------|-------|-------|-------|
+         *                               1   TYPE_CLASS_DATETIME
+         *                             1     TYPE_DATETIME_VARIATION_DATE
+         *                            1      TYPE_DATETIME_VARIATION_TIME
+         * |-------|-------|-------|-------|</pre>
+         */
+
+
+        // Determine the appropriate layout based on the input type
+        if ((inputType & InputType.TYPE_MASK_CLASS) == InputType.TYPE_CLASS_TEXT) {
+            // This input type is of class TYPE_CLASS_TEXT
+            // Add your code for handling text input here
+            layoutResId = R.xml.custom_keyboard;
+        } else if ((inputType & InputType.TYPE_MASK_CLASS) == InputType.TYPE_CLASS_NUMBER) {
+            // This input type is of class TYPE_CLASS_NUMBER
+            // Add your code for handling numeric input here
+            layoutResId = R.xml.custom_keyboard_num;
+        } else if ((inputType & InputType.TYPE_MASK_CLASS) == InputType.TYPE_CLASS_PHONE) {
+            // This input type is of class TYPE_CLASS_PHONE
+            // Add your code for handling phone number input here
+            layoutResId = R.xml.custom_keyboard;
+        } else if ((inputType & InputType.TYPE_MASK_CLASS) == InputType.TYPE_CLASS_DATETIME) {
+            // This input type is of class TYPE_CLASS_NUMBER
+            // Add your code for handling numeric input here
+            layoutResId = R.xml.custom_keyboard;
+        } else {
+            // Default to alpha layout if the input type is unknown
+            layoutResId = R.xml.custom_keyboard;
+        }
+
+
+
+        // Load the selected keyboard layout
+
+        if (keyboardView != null) {
+            // Update when it's new or changed.
+            if (lastKeyboardID == 0 || lastKeyboardID != layoutResId) {
+                Keyboard newKeyboard = new Keyboard(this, layoutResId);
+                Log.i("keystroke", "Setting a new keyboard layout on keyboardView");;
+                keyboardView.setKeyboard(newKeyboard);
+                keyboardView.invalidate();
+                lastKeyboardID = layoutResId;
+
+            } else {
+                Log.i("keystroke", "keyboardView layout is the same as the current one");
+            }
+        } else {
+            Log.i("keystroke", "keyboardView is null");
+        }
+    }
 
     @Override
     public void onBindInput() {
+
         super.onBindInput();
         // 새로운 입력창으로 바뀔때, 한글의 이전 상태를 지우고 새롭게 시작하도록 함.
         stage = STAGE_INITIAL;
         Log.i("keystroke", "new bind");
+
+
+    }
+
+    @Override
+    public void onStartInputView (EditorInfo editorInfo,
+                              boolean restarting) {
+        super.onStartInputView(editorInfo, restarting);
+
+        // The user is starting input in a new input field.
+        // You can detect the new input type here.
+
+        Log.i("keystroke", "Func - onStartInputView");
+        int inputType = editorInfo.inputType;
+
+        // Change the keyboard layout based on the new input field's input type
+        changeKeyboardLayout(inputType);
     }
 
     @Override
@@ -111,7 +275,7 @@ public class CustomKeyboardApp extends InputMethodService
             return; // No keyboard defined, cannot proceed
         }
 
-        Log.i("keystroke", "code:" + primaryCode + " and character is " + (char) primaryCode + " and codes are " + keyCodes);
+        Log.i("keystroke", "code:" + primaryCode + " and character is " + (char) primaryCode + " and codes are " + Arrays.toString(keyCodes));
         boolean languageUpdate = false;
         boolean primaryFound = false;
         List<Keyboard.Key> keys = keyboard.getKeys();
