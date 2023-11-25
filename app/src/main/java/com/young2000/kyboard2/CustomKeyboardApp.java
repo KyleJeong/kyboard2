@@ -213,7 +213,7 @@ public class CustomKeyboardApp extends InputMethodService
             // Update when it's new or changed.
             if (lastKeyboardID == 0 || lastKeyboardID != layoutResId) {
                 Keyboard newKeyboard = new Keyboard(this, layoutResId);
-                Log.i("keystroke", "Setting a new keyboard layout on keyboardView");;
+                Log.i("keystroke", "Setting a new keyboard layout on keyboardView");
                 keyboardView.setKeyboard(newKeyboard);
                 keyboardView.invalidate();
                 lastKeyboardID = layoutResId;
