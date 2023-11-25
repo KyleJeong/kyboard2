@@ -3,10 +3,10 @@
     android:horizontalGap="2dp"
     android:verticalGap="7dp"
     android:keyHeight="50dp"
-    android:keyWidth="20%">
+    android:keyWidth="10%">
 
 
-    <Row  android:keyWidth="10%">
+    <Row>
         <Key android:keyLabel="1" android:keyEdgeFlags="left"/>
         <Key android:keyLabel="2" />
         <Key android:keyLabel="3" />
@@ -18,7 +18,7 @@
         <Key android:keyLabel="9" />
         <Key android:keyLabel="0" android:keyEdgeFlags="right"/>
     </Row>
-    <Row  android:keyWidth="10%">
+    <Row>
         <Key android:keyLabel="q" android:popupKeyboard="@xml/kbd_popup_template" android:popupCharacters="@string/alternates_for_q" android:keyEdgeFlags="left"/>
         <Key android:keyLabel="w" android:popupKeyboard="@xml/kbd_popup_template" android:popupCharacters="@string/alternates_for_w" />
         <Key android:keyLabel="e" android:popupKeyboard="@xml/kbd_popup_template" android:popupCharacters="@string/alternates_for_e" />
@@ -31,9 +31,9 @@
         <Key android:keyLabel="p" android:popupKeyboard="@xml/kbd_popup_template" android:popupCharacters="@string/alternates_for_p" android:keyEdgeFlags="right"/>
     </Row>
 
-    <Row  android:keyWidth="9%">
+    <Row android:keyWidth="9.5%" android:keyEdgeFlags="left" >
         <!--The order of horizontalGap and keyEdgeFlags is important. Don't change the order -->
-        <Key android:keyLabel="a" android:popupKeyboard="@xml/kbd_popup_template" android:popupCharacters="@string/alternates_for_a" android:horizontalGap="5%" android:keyEdgeFlags="left" />
+        <Key android:keyLabel="a" android:popupKeyboard="@xml/kbd_popup_template" android:popupCharacters="@string/alternates_for_a" android:horizontalGap="5%" />
         <Key android:keyLabel="s" android:popupKeyboard="@xml/kbd_popup_template" android:popupCharacters="@string/alternates_for_s" />
         <Key android:keyLabel="d" android:popupKeyboard="@xml/kbd_popup_template" android:popupCharacters="@string/alternates_for_d" />
         <Key android:keyLabel="f" android:popupKeyboard="@xml/kbd_popup_template" android:popupCharacters="@string/alternates_for_f" />
@@ -41,10 +41,10 @@
         <Key android:keyLabel="h" android:popupKeyboard="@xml/kbd_popup_template" android:popupCharacters="@string/alternates_for_h" />
         <Key android:keyLabel="j" android:popupKeyboard="@xml/kbd_popup_template" android:popupCharacters="@string/alternates_for_j" />
         <Key android:keyLabel="k" android:popupKeyboard="@xml/kbd_popup_template" android:popupCharacters="@string/alternates_for_k" />
-        <Key android:keyLabel="l" android:popupKeyboard="@xml/kbd_popup_template" android:popupCharacters="@string/alternates_for_l"  android:keyEdgeFlags="right" />
+        <Key android:keyLabel="l" android:popupKeyboard="@xml/kbd_popup_template" android:popupCharacters="@string/alternates_for_l"/>
     </Row>
 
-    <Row  android:keyWidth="10%">
+    <Row>
         <Key android:keyLabel="⇧" android:codes="-1" android:keyEdgeFlags="left"/>
         <Key android:keyLabel="z"   android:popupKeyboard="@xml/kbd_popup_template" android:popupCharacters="@string/alternates_for_z" />
         <Key android:keyLabel="x"   android:popupKeyboard="@xml/kbd_popup_template" android:popupCharacters="@string/alternates_for_x" />
@@ -56,7 +56,7 @@
         <Key android:keyLabel="\?"  android:popupKeyboard="@xml/kbd_popup_template" android:popupCharacters="@string/alternates_for_question" />
         <Key android:keyLabel="⌫"  android:codes="67" android:isRepeatable="true" android:keyEdgeFlags="right" />
     </Row>
-    <Row  android:keyWidth="10%">
+    <Row>
         <Key android:keyLabel="!#?" android:keyWidth="15%" android:codes="-1010"  android:keyEdgeFlags="left"/>
         <Key android:keyIcon="@drawable/language" android:keyWidth="10%" android:codes="-1001" />
         <Key android:keyLabel="," />
