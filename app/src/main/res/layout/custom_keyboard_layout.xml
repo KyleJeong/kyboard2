@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.inputmethodservice.KeyboardView xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:keyPreviewLayout="@layout/custom_keyboard_preview"
-    android:layout_alignParentBottom="true" >
+    android:orientation="vertical">
 
+    <!-- RecyclerView for candidate suggestions -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/candidateRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
 
-</android.inputmethodservice.KeyboardView>
+    <!-- KeyboardView -->
+    <android.inputmethodservice.KeyboardView
+        android:id="@+id/mykey"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:keyPreviewLayout="@layout/custom_keyboard_preview"
+        android:layout_alignParentBottom="true" >
+
+    </android.inputmethodservice.KeyboardView>
+</LinearLayout>

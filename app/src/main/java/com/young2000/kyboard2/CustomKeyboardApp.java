@@ -9,7 +9,11 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
+import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,21 +34,57 @@ public class CustomKeyboardApp extends InputMethodService
     int last_moumIndex;
     boolean last_was_jaum;
     int prev_cho_jung_DanjaumJongsung;
+    LinearLayout keyboardViewTop;
+    RecyclerView candidateRecyclerView;
+    CandidateAdapter candidateAdapter;
+    List<String> candidateList = new ArrayList<>();
     KeyboardView keyboardView;
     boolean isShifted;
     boolean markEnabled;
-    int English_Korean;
+    int languageCode;
+    int LANG_EN = 0;
+    int LANG_KO = 1;
+    int LANG_CH = 2;
 
     int lastKeyboardID;
     CharSequence lastText;
     List<KeyMapping> mappingList;
     List<KeyMapping> markMappingList;
 
+    ChineseDbHelper dbHelper;
+    String chinseInput;
+    InputConnection inputConnection = null;
     @Override
     public View onCreateInputView() {
 
         Log.i("keystroke", "Func - onCreateInputView");
-        keyboardView = (KeyboardView) getLayoutInflater().inflate(R.layout.custom_keyboard_layout, null);
+        keyboardViewTop = (LinearLayout) getLayoutInflater().inflate(R.layout.custom_keyboard_layout, null);
+        keyboardView = keyboardViewTop.findViewById(R.id.mykey);
+        candidateRecyclerView = keyboardViewTop.findViewById(R.id.candidateRecyclerView);
+        candidateAdapter = new CandidateAdapter();
+        // Set the OnItemClickListener
+        candidateAdapter.setOnItemClickListener(new CandidateAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(String selectedItem) {
+                // Handle the item selection, and use commitText on the inputConnection
+                if (inputConnection != null) {
+                    inputConnection.commitText(selectedItem, 1);
+                    chinseInput = "";
+                }
+            }
+
+            @Override
+            public void setInputConnection(InputConnection inputConnection) {
+                // Set the inputConnection
+                CustomKeyboardApp.this.inputConnection = inputConnection;
+            }
+        });
+
+        dbHelper = new ChineseDbHelper(this);
+        //candidateRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        candidateRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
+        candidateRecyclerView.setAdapter(candidateAdapter);
         //Keyboard keyboard = new Keyboard(this, R.xml.custom_keyboard);
         //keyboardView.setKeyboard(keyboard);
         //keyboardView.setOnKeyboardActionListener(this);
@@ -78,11 +118,12 @@ public class CustomKeyboardApp extends InputMethodService
         }
 
         isShifted = false;
-        English_Korean = 0;
+        languageCode = LANG_EN;
         stage = STAGE_INITIAL;
         markEnabled = false;
         lastText = null;
         lastKeyboardID = 0;
+        chinseInput = "";
         // Get the current input type
         int inputType = getCurrentInputEditorInfo().inputType;
 
@@ -91,8 +132,56 @@ public class CustomKeyboardApp extends InputMethodService
 
         //keyboardView.setKeyboard(keyboard);
         keyboardView.setOnKeyboardActionListener(this);
-        return keyboardView;
+        return keyboardViewTop;
 
+    }
+
+
+    private void ShowChineseCandidate(CharSequence label, boolean add) {
+        Log.i("Chinese", "whole is (before) " + chinseInput);
+        if (add) {
+            chinseInput += label.toString();
+            Log.i("Chinese", "whole is " + chinseInput);
+        } else {
+            chinseInput = chinseInput.substring(0, chinseInput.length() - 1);
+        }
+        Log.i("Chinese", "whole is (after) " + chinseInput);
+        // Convert CharSequence to String for manipulation
+        ArrayList<String> suggestions = dbHelper.getWords(chinseInput);
+
+        // read date base
+        updateCandidateList(chinseInput, suggestions);
+        // Delete the original text
+//                            inputConnection.deleteSurroundingText(lastSubstring.length(), 0);
+//
+//                            // Perform the replacement in the inputConnection
+//                            inputConnection.commitText(replacement, 1);
+        //ChineseProcess(inputConnection, label);
+    }
+
+    private void updateCandidateList(String input, ArrayList <String> suggest) {
+        // Implement Pinyin conversion logic to get candidate Chinese characters
+        // Populate the candidateList with suggestions based on the input
+        List<String> suggestions = new ArrayList<>();
+        suggestions.add(input);
+        if (suggest != null) {
+            suggestions.addAll(suggest);
+        }
+        candidateList = suggestions; //getPinyinSuggestions(input);
+
+        // Update the UI to display the input and candidate Chinese characters
+        //updateInputView();
+        updateCandidateView();
+    }
+    private void updateCandidateView() {
+        // Update the UI to display the candidate Chinese characters in RecyclerView
+        candidateAdapter.setCandidates(candidateList);
+        if (candidateList.isEmpty()) {
+            candidateRecyclerView.setVisibility(View.GONE);
+        } else {
+            candidateRecyclerView.setVisibility(View.VISIBLE);
+            candidateAdapter.notifyDataSetChanged();
+        }
     }
 
     private void changeKeyboardLayout(int inputType) {
@@ -264,7 +353,7 @@ public class CustomKeyboardApp extends InputMethodService
 
     @Override
     public void onKey(int primaryCode, int[] keyCodes) {
-        InputConnection inputConnection = getCurrentInputConnection();
+        inputConnection = getCurrentInputConnection();
 
         if (inputConnection == null) {
             return; // No input connection, cannot proceed
@@ -288,13 +377,14 @@ public class CustomKeyboardApp extends InputMethodService
         }
 
         if (primaryCode == 10) {
-            // Backspace key pressed
+            // Enter key pressed
             Log.i("keystroke", "Enter key pressed");
             inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
             inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
             // If the Enter key is stroked, clean the isShift variable to return to normal.
             isShifted = false;
             stage = STAGE_INITIAL;
+
         } else if (primaryCode == 32) {
             // Space key pressed
             Log.i("keystroke", "Space key pressed");
@@ -308,22 +398,33 @@ public class CustomKeyboardApp extends InputMethodService
         } else if (primaryCode == 67) {
             // Backspace key pressed
             Log.i("keystroke", "Backspace key pressed");
-            inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
-            inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL));
-            stage = STAGE_INITIAL;
+            if (languageCode != LANG_CH) {
+                inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
+                inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL));
+                stage = STAGE_INITIAL;
+            } else {
+                if (!chinseInput.isEmpty()) {
+                    ShowChineseCandidate(null, false);
+                } else {
+                    inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
+                    inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL));
+                }
+            }
         } else if (primaryCode == -1001) {
             Log.i("keystroke", "Language key pressed");
-            English_Korean = (English_Korean + 1) % 2;
+            languageCode = (languageCode + 1) % 3;
             languageUpdate = true;
             markEnabled = false;
             isShifted = false;  // reset Shift when the language is updated
             stage = STAGE_INITIAL;
+            chinseInput = "";
         } else if (primaryCode == -1010) {
             Log.i("keystroke", "mark key pressed");
             languageUpdate = true;
             markEnabled = !markEnabled;
             isShifted = false;  // reset Shift when the language is updated
             stage = STAGE_INITIAL;
+            chinseInput = "";
         } else {
             for (Keyboard.Key key : keys) {
                 if (key.codes[0] == primaryCode) {
@@ -331,10 +432,15 @@ public class CustomKeyboardApp extends InputMethodService
                     CharSequence label = key.label;
                     // Non-Shift key pressed
                     Log.i("keystroke", String.valueOf((char) primaryCode));
-                    if (English_Korean == 0) {
+                    if (languageCode == LANG_EN) {
                         inputConnection.commitText(label, 1); // Input the label text
                         // If the normal key is stroked, clean the isShift variable to return to normal.
-                    } else HangulProcess(inputConnection, label);
+                    } else if (languageCode == LANG_KO) {
+                        HangulProcess(inputConnection, label);
+                    } else {
+                        ShowChineseCandidate(label, true);
+
+                    }
                     isShifted = false;
                     languageUpdate = true;
                     break;
@@ -370,13 +476,13 @@ public class CustomKeyboardApp extends InputMethodService
                     } else {
                         for (KeyMapping mapping : mappingList) {
                             if (mapping.englishKey == (char) pmCode) {
-                                if (English_Korean == 0) {
+                                if (languageCode == LANG_EN) {
                                     if (!isShifted) {
                                         key.label = String.valueOf(mapping.englishKey);
                                     } else {
                                         key.label = String.valueOf(mapping.englishKey).toUpperCase();
                                     }
-                                } else {
+                                } else if (languageCode == LANG_KO) {
                                     key.label = String.valueOf(mapping.anotherCharacter);
                                     if (isShifted) {
                                         if (key.label.toString().equals("ㅂ")) {
@@ -395,10 +501,20 @@ public class CustomKeyboardApp extends InputMethodService
                                             key.label = "ㅖ";
                                         }
                                     }
+                                } else { // Chinese Use English Key
+                                    key.label = String.valueOf(mapping.englishKey);
                                 }
                                 break; // Stop the loop once you find the mapping
                             }
                         }
+                    }
+                } else if (pmCode==32) {
+                    if (languageCode == LANG_EN) {
+                        key.label = "English";
+                    } else if (languageCode == LANG_KO) {
+                        key.label = "한국어";
+                    } else {
+                        key.label = "pinyin";
                     }
                 }
             }
