@@ -17,7 +17,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 public class CustomKeyboardApp extends InputMethodService
@@ -136,10 +140,23 @@ public class CustomKeyboardApp extends InputMethodService
 
     }
 
+    // Helper method to check if a character is an ASCII alphabet character (a-zA-Z)
+    private boolean isAsciiAlphabet(char c) {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+    }
 
-    private void ShowChineseCandidate(CharSequence label, boolean add) {
+    private void ShowChineseCandidate(InputConnection inC, CharSequence label, boolean add) {
         Log.i("Chinese", "whole is (before) " + chinseInput);
         if (add) {
+            // Check if chinseInput is empty and label is not an ASCII alphabet character
+            if (chinseInput.isEmpty() && !isAsciiAlphabet(label.charAt(0))) {
+                // Perform commitText here
+                if (inC != null) {
+                    inC.commitText(label, 1);
+                }
+                return;
+            }
+
             chinseInput += label.toString();
             Log.i("Chinese", "whole is " + chinseInput);
         } else {
@@ -147,10 +164,35 @@ public class CustomKeyboardApp extends InputMethodService
         }
         Log.i("Chinese", "whole is (after) " + chinseInput);
         // Convert CharSequence to String for manipulation
-        ArrayList<String> suggestions = dbHelper.getWords(chinseInput);
+        ArrayList<WordWithFreqMax> suggestions = dbHelper.getWords(chinseInput);
+
+        ArrayList<String> sortedWords = null;
+        if (suggestions != null) {
+            // Create a Map to store the maximum freq_max for each word
+            Map<String, Integer> maxFreqMap = new HashMap<>();
+
+            // Iterate through suggestions to find the max freq_max for each word
+            for (WordWithFreqMax suggestion : suggestions) {
+                String word = suggestion.getWord();
+                int freqMax = suggestion.getFreqMax();
+
+                // Update maxFreqMap with the maximum freq_max value for each word
+                maxFreqMap.put(word, Math.max(maxFreqMap.getOrDefault(word, Integer.MIN_VALUE), freqMax));
+            }
+
+            // Sort the list of unique words based on the max freq_max in descending order
+            sortedWords = maxFreqMap.entrySet()
+                    .stream()
+                    .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toCollection(ArrayList::new));
+
+            // Sort the list based on freq_max in descending order
+            suggestions.sort(Comparator.comparingInt(WordWithFreqMax::getFreqMax).reversed());
+        }
 
         // read date base
-        updateCandidateList(chinseInput, suggestions);
+        updateCandidateList(chinseInput, sortedWords);
         // Delete the original text
 //                            inputConnection.deleteSurroundingText(lastSubstring.length(), 0);
 //
@@ -404,7 +446,7 @@ public class CustomKeyboardApp extends InputMethodService
                 stage = STAGE_INITIAL;
             } else {
                 if (!chinseInput.isEmpty()) {
-                    ShowChineseCandidate(null, false);
+                    ShowChineseCandidate(inputConnection, null, false);
                 } else {
                     inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
                     inputConnection.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL));
@@ -438,7 +480,7 @@ public class CustomKeyboardApp extends InputMethodService
                     } else if (languageCode == LANG_KO) {
                         HangulProcess(inputConnection, label);
                     } else {
-                        ShowChineseCandidate(label, true);
+                        ShowChineseCandidate(inputConnection, label, true);
 
                     }
                     isShifted = false;

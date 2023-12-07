@@ -19,7 +19,7 @@ public class ChineseDbHelper extends SQLiteOpenHelper {
     private boolean path_flag;
 
 
-    private static final String DATABASE_NAME = "chinese_word.db";
+    private static final String DATABASE_NAME = "chinese_word2.db";
     private static final int DATABASE_VERSION = 1;
 
     private SQLiteDatabase myDataBase;
@@ -92,25 +92,28 @@ public class ChineseDbHelper extends SQLiteOpenHelper {
         inputStream.close();
     }
 
-    public ArrayList<String> getWords (String searchStr) {
+    public ArrayList<WordWithFreqMax> getWords (String searchStr) {
         Log.d("getHighlight", "들어오나");
         myDataBase = openDataBase();
         if (myDataBase==null) {
             return null;
         }
 
-        String queryString = "SELECT keyword FROM pronunciation WHERE LOWER(pronunciation) = ?";
+        String queryString = "SELECT word, freq_max FROM your_table WHERE LOWER(pronunciation) = ?";
         Cursor cursor = myDataBase.rawQuery(queryString, new String[]{searchStr.toLowerCase()});
 
         cursor.moveToFirst();
 
-        ArrayList<String> Words = new ArrayList<>();
+        ArrayList<WordWithFreqMax> Words = new ArrayList<>();
 
         int AA = cursor.getCount();
         Log.d("test", "return cursor count is " + AA);
         if  (AA!=0){
             while (!cursor.isAfterLast()){
-                Words.add(cursor.getString(0));
+                String word = cursor.getString(0);
+                int freqMax = cursor.getInt(1);
+
+                Words.add(new WordWithFreqMax(word, freqMax));
                 cursor.moveToNext();
             }
             cursor.close();
@@ -124,3 +127,4 @@ public class ChineseDbHelper extends SQLiteOpenHelper {
 
     }
 }
+
